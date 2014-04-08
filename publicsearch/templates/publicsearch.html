@@ -53,7 +53,8 @@
                 <form class="searchForm" id="search">
                     {% csrf_token %}
                     <div>
-                        {% include "pahmafields.html" %}
+                        {% include "pahamfields" %}
+                        {# {% include "fieldwrapper.html" %} #}
                         {% include "buttons.html" %}
                     </div>
                 </form>

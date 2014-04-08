@@ -5,3 +5,4 @@ logs/settings.log
 config/*.cfg
 *.DS_Store
 .idea
+static_root
