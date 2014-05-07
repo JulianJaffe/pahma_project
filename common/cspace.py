@@ -7,6 +7,8 @@ import urllib2
 import ConfigParser
 import time
 import re
+import simplejson as json
+import ordereddict
 
 
 CONFIG_SUFFIX = ".cfg"
@@ -41,6 +43,18 @@ def getConfig(base_path, filename_nosuffix):
 
     return config
 
+def getJSONConfig(base_path, filename_nosuffix):
+    """
+    Parse a json config file and returns an ordered dictionary preserving the key order.
+    :param base_path:
+    :param filename_nosuffix:
+    :return: An ordered dictionary encapsulating the config file
+    """
+    fileName = filename_nosuffix + CONFIG_SUFFIX
+    relative_path = path.join(base_path, fileName)  # config file should be one of our siblings
+    print relative_path
+    config = json.load(open(relative_path), object_pairs_hook=ordereddict.OrderedDict)
+    return config
 
 def getConfigOptionWithSection(config, section, property_name):
     result = None

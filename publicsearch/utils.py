@@ -81,7 +81,7 @@ def getfields(fieldset):
         return ["ucjeps", "accession", "objectname", "collector", "", "collectionnumber", "", "collectiondate",
                 "", "", "county", "elevation", "locality", "L1", "L2", "datum"]
     elif fieldset == 'facetfields':
-        return ['objectname_s','medium_s','culture_s']
+        return ['objectname_s','medium_s','culture_s', 'provenance_s']
 
 
 def getfacets(response):
@@ -291,7 +291,7 @@ def doSearch(solr_server, solr_core, context):
                     t = '[* TO *]'
                     index = '-' + PARMS[p][3]
                 else:
-                    if p in DROPDOWNS:
+                    if DROPDOWNS and p in DROPDOWNS:
                         # if it's a value in a dropdown, it must always be an "exact search"
                         t = '"' + t + '"'
                         index = PARMS[p][3].replace('_txt', '_s')
@@ -318,6 +318,7 @@ def doSearch(solr_server, solr_core, context):
                         index = PARMS[p][3]
                 if t == 'OR': t = '"OR"'
                 if t == 'AND': t = '"AND"'
+                #if t == 'NOT'; t = '"NOT"' Is this how to deal with NOTs?
                 ORs.append('%s:%s' % (index, t))
             searchTerm = ' OR '.join(ORs)
             if ' ' in searchTerm and not '[* TO *]' in searchTerm: searchTerm = ' (' + searchTerm + ') '

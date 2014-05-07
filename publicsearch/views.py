@@ -17,7 +17,7 @@ from utils import writeCsv, doSearch, setupGoogleMap, setupBMapper, setDisplayTy
 # global variables (at least to this module...)
 config = cspace_django_site.getConfig()
 
-from appconfig import SOLRSERVER, SOLRCORE
+from appconfig import SOLRSERVER, SOLRCORE, CFGPARMS
 
 SEARCHRESULTS = {}
 
@@ -94,9 +94,12 @@ def csv(request):
 
             # Create the HttpResponse object with the appropriate CSV header.
             response = HttpResponse(content_type='text/csv')
-            response['Content-Disposition'] = 'attachment; filename="ucjeps.csv"'
+            response['Content-Disposition'] = 'attachment; filename="pahma.csv"'
             #response.write(u'\ufeff'.encode('utf8'))
             writeCsv(response, context['items'], writeheader=True)
 
             loginfo('csv', context, request)
             return response
+
+def testCfg(request):
+    return render(request, 'publicsearch_test.html', CFGPARMS)

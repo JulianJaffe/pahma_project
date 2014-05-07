@@ -9,4 +9,5 @@ urlpatterns = patterns('',
                        url(r'^(?i)bmapper/?$', views.bmapper, name='bmapper'),
                        url(r'^(?i)csv/?$', views.csv, name='csv'),
                        url(r'^(?i)gmapper/?$', views.gmapper, name='gmapper'),
+                       url(r'^(?i)test/?$', views.testCfg, name='test'),
                        )

@@ -1,27 +1,42 @@
-{% extends fieldwrapper.html %}
+{% extends "fieldwrapper.html" %}
 
 {% block searchfields %}
-{% for field in searchValues.fields %}
-    {% if field|length == 0 %} {# i.e. if BREAK #}
+{% for field, fieldValues in FIELDS.items %}
+    {% if fieldValues|length == 0 %} {# i.e. if BREAK #}
       </tr>
       <tr>
     {% else %}
-        <td {% if field.style%} style="{{ field.style }}"{% endif %}>
-            <label>{{ field.label }}</label></td>
+        <td {% if fieldValues.style%} style="{{ fieldValues.style }}"{% endif %}>
+            <label>{{ fieldValues.label }}</label><br>
             {% if field.dropdown %}
             <select id="{{ field }}_qualifier" name="{{ field }}_qualifier">
                 {% for option in qualifiers %}
-                    <option value="{{option}}"{% if option == searchValues.{{ field }}_qualifier %} selected{% endif %}>{{option}}</option>
+                    <option value="{{option}}"{% if option == searchValues.include_child %} selected{% endif %}>{{option}}</option>
                 {% endfor %}
             </select>
            {% endif %}
-           {% if field.include_child %}
+           {% if fieldValues.include_child %}
             <label for "{{ field }}_include_child">Include child terms?</label>
             <input type="checkbox" id="{{ field }}_include_child" name="{{ field }}_include_child">
-           {% endif %}
-        <td>
-            <input type="{{ field.type }}" id="{{ field }}" name="{{ field }}" value="{{ searchValues.field) }}"/>
-        </td>
+           {% endif %}</td>
+        {% if fieldValues.pick_list %}
+          <td>
+            <select id="{{ field }}_dropdown" name="{{ field }}_dropdown">
+                <option value="" selected></option>
+                {% for display, value in fieldValues.pick_list.items %}
+                    <option value="{{ value }}"{% if value == searchValues.dropdown %} selected{% endif %}>{{ display }}</option>
+                {% endfor %}
+            </select>
+          </td>
+        {% else %}
+          <td>
+              <input type="{{ fieldValues.type }}" id="{{ field }}" name="{{ field }}" value="{{ searchValues.field }}"/>
+          </td>
+        {% endif %}
     {% endif %}
+{% empty %}
+<tr>
+  <td class="error">Empty config file!</td>
+</tr>
 {% endfor %}
 {% endblock %}

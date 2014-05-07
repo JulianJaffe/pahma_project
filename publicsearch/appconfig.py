@@ -3,6 +3,7 @@
 from os import path
 from common import cspace # we use the config file reading function
 from cspace_django_site import settings
+import ordereddict
 
 config = cspace.getConfig(path.join(settings.BASE_PARENT_DIR, 'config'), 'search')
 
@@ -44,3 +45,6 @@ PARMS = {
     'L2': ['L2', 'true', '', 'location_1_coordinate', ''],
     'blobs': ['blob_ss', 'true', '', 'blob_ss', ''],
 }
+
+CFGPARMS = cspace.getJSONConfig(path.join(settings.BASE_PARENT_DIR, 'config'), 'defaultFields')
+#print PARMS
