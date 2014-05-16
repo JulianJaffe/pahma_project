@@ -234,6 +234,7 @@ def setConstants(context):
     )
 
     # copy over form values to context if they exist
+    print "Context: " + str(context)
     try:
         requestObject = context['searchValues']
 
@@ -256,6 +257,7 @@ def setConstants(context):
         context['core'] = SOLRCORE
         context['maxresults'] = MAXRESULTS
 
+    print "Context: " + str(context)
     return context
 
 
@@ -291,7 +293,7 @@ def doSearch(solr_server, solr_core, context):
                     t = '[* TO *]'
                     index = '-' + PARMS[p][3]
                 else:
-                    if DROPDOWNS and p in DROPDOWNS:
+                    if p in DROPDOWNS:
                         # if it's a value in a dropdown, it must always be an "exact search"
                         t = '"' + t + '"'
                         index = PARMS[p][3].replace('_txt', '_s')
@@ -318,13 +320,13 @@ def doSearch(solr_server, solr_core, context):
                         index = PARMS[p][3]
                 if t == 'OR': t = '"OR"'
                 if t == 'AND': t = '"AND"'
-                #if t == 'NOT'; t = '"NOT"' Is this how to deal with NOTs?
                 ORs.append('%s:%s' % (index, t))
             searchTerm = ' OR '.join(ORs)
             if ' ' in searchTerm and not '[* TO *]' in searchTerm: searchTerm = ' (' + searchTerm + ') '
             queryterms.append(searchTerm)
             urlterms.append('%s=%s' % (p, cgi.escape(requestObject[p])))
         querystring = ' AND '.join(queryterms)
+        print "Debug 1"
         print querystring
 
         if urlterms != []:
@@ -351,6 +353,7 @@ def doSearch(solr_server, solr_core, context):
                            rows=context['maxresults'], facet_limit=MAXFACETS,
                            facet_mincount=1)
     except:
+        raise
         context['errormsg'] = 'Solr4 query failed'
         return context
 
@@ -397,10 +400,7 @@ def doSearch(solr_server, solr_core, context):
     #print 'items',len(context['items'])
     context['count'] = response._numFound
     m = {}
-    context['labels'] = {}
-    for p in PARMS:
-        m[PARMS[p][3].replace('_txt', '_s')] = p
-        context['labels'][p] = PARMS[p][0]
+    for p in PARMS: m[PARMS[p][3].replace('_txt', '_s')] = p
     context['fields'] = [m[f] for f in facetfields]
     context['facetflds'] = [[m[f], facetflds[f]] for f in facetfields]
     context['range'] = range(len(facetfields))
@@ -429,7 +429,6 @@ context = doSearch(SOLRSERVER, SOLRCORE, context)
 
 if 'errormsg' in context:
     solrIsUp = False
-    print 'Initial solr search failed. Concluding that Solr is down or unreachable... Will not be trying again! Please fix and restart!'
 else:
     for facet in context['facetflds']:
         #print 'facet',facet[0],len(facet[1])

@@ -102,4 +102,17 @@ def csv(request):
             return response
 
 def testCfg(request):
+    if request.method == 'GET' and request.GET != {}:
+        context = {'searchValues': request.GET}
+        context = doSearch(SOLRSERVER, SOLRCORE, context)
+
+        global SEARCHRESULTS
+        SEARCHRESULTS = context
+    else:
+        context = {}
+
+    context = setConstants(context)
+    loginfo('start search', context, request)
+    CFGPARMS['context'] = context
+    #return render(request, 'publicsearch.html', context)
     return render(request, 'publicsearch_test.html', CFGPARMS)

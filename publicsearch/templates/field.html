@@ -19,9 +19,9 @@
             <label for "{{ field }}_include_child">Include child terms?</label>
             <input type="checkbox" id="{{ field }}_include_child" name="{{ field }}_include_child">
            {% endif %}</td>
-        {% if fieldValues.pick_list %}
+        {% if fieldValues.type == 'Dropdown' %}
           <td>
-            <select id="{{ field }}_dropdown" name="{{ field }}_dropdown">
+            <select id="{{ field }}" name="{{ field }}">
                 <option value="" selected></option>
                 {% for display, value in fieldValues.pick_list.items %}
                     <option value="{{ value }}"{% if value == searchValues.dropdown %} selected{% endif %}>{{ display }}</option>
@@ -30,7 +30,7 @@
           </td>
         {% else %}
           <td>
-              <input type="{{ fieldValues.type }}" id="{{ field }}" name="{{ field }}" value="{{ searchValues.field }}"/>
+              <input type="{{ fieldValues.type }}" id="{{ field }}" name="{{ field }}" value="{{ context.searchValues.field }}"/>
           </td>
         {% endif %}
     {% endif %}
