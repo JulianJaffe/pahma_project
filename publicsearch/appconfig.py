@@ -24,28 +24,42 @@ SEARCH_QUALIFIERS = config.get('search', 'SEARCH_QUALIFIERS').split(',')
 
 # still need to move this into a config file.
 # could be the same one as above, or a different one.
+# PARMS = {
+#     # this first one is special
+#     'keyword': ['Keyword', 'true', 'a keyword search value, please', 'text', ''],
+#
+#     # the rest are mapping the solr field names to django form labels and fields
+#     'csid': ['id', 'true', '', 'id', ''],
+#     'accession': ['Object Number', 'true', '', 'objectnumber_s', ''],
+#     'objectname': ['Object Name', 'true', '', 'objectname_txt', ''],
+#     'collector': ['Collector', 'true', '', 'collector_txt', ''],
+#     'collectiondate': ['Collection Date', 'true', '', 'collectiondate_txt', ''],
+#     'location': ['Location', 'true', '', 'location_txt', ''],
+#     'county': ['County', 'true', '', 'collcounty_txt', ''],
+#     'state': ['State', 'true', '', 'collstate_s', ''],
+#     'country': ['Country', 'true', '', 'collcountry_s', ''],
+#     'medium': ['Medium', 'true', '', 'medium_txt', ''],
+#     'culture': ['Culture', 'true', '', 'culture_txt', ''],
+#     'provenance': ['Provenance', 'true', '', 'provenance_txt', ''],
+#     'description': ['Description', 'true', '', 'description_txt', ''],
+#     'L1': ['L1', 'true', '', 'location_0_coordinate', ''],
+#     'L2': ['L2', 'true', '', 'location_1_coordinate', ''],
+#     'blobs': ['blob_ss', 'true', '', 'blob_ss', ''],
+# }
+#
+# CFGPARMS = cspace.getJSONConfig(path.join(settings.BASE_PARENT_DIR, 'config'), FIELDS)
+# #print PARMS
+CFGPARMS = cspace.getJSONConfig(path.join(settings.BASE_PARENT_DIR, 'config'), FIELDS)
 PARMS = {
     # this first one is special
-    'keyword': ['Keyword', 'true', 'a keyword search value, please', 'text', ''],
+    'keyword': ['Keyword', 'true', 'a keyword search value, please', 'text', '']}
+for p in CFGPARMS['FIELDS']:
+    if len(CFGPARMS['FIELDS'][p]) == 0 or p == 'keyword':
+        pass #Not a true param
+    else: #Not strictly necessary else statement
+        PARMS[p] = [CFGPARMS['FIELDS'][p]['label'], 'true', '', CFGPARMS['FIELDS'][p]['term'], '']
 
-    # the rest are mapping the solr field names to django form labels and fields
-    'csid': ['id', 'true', '', 'id', ''],
-    'accession': ['Object Number', 'true', '', 'objectnumber_s', ''],
-    'objectname': ['Object Name', 'true', '', 'objectname_txt', ''],
-    'collector': ['Collector', 'true', '', 'collector_txt', ''],
-    'collectiondate': ['Collection Date', 'true', '', 'collectiondate_txt', ''],
-    'location': ['Location', 'true', '', 'location_txt', ''],
-    'county': ['County', 'true', '', 'collcounty_txt', ''],
-    'state': ['State', 'true', '', 'collstate_s', ''],
-    'country': ['Country', 'true', '', 'collcountry_s', ''],
-    'medium': ['Medium', 'true', '', 'medium_txt', ''],
-    'culture': ['Culture', 'true', '', 'culture_txt', ''],
-    'provenance': ['Provenance', 'true', '', 'provenance_txt', ''],
-    'description': ['Description', 'true', '', 'description_txt', ''],
-    'L1': ['L1', 'true', '', 'location_0_coordinate', ''],
-    'L2': ['L2', 'true', '', 'location_1_coordinate', ''],
-    'blobs': ['blob_ss', 'true', '', 'blob_ss', ''],
-}
 
-CFGPARMS = cspace.getJSONConfig(path.join(settings.BASE_PARENT_DIR, 'config'), FIELDS)
-#print PARMS
+PARMS['L1'] = ['L1', 'true', '', 'location_0_coordinate', '']
+PARMS['L2'] = ['L2', 'true', '', 'location_1_coordinate', '']
+PARMS['blobs'] = ['blob_ss', 'true', '', 'blob_ss', '']
