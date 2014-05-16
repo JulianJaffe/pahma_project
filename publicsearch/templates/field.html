@@ -6,7 +6,7 @@
       </tr>
       <tr>
     {% else %}
-        <td {% if fieldValues.style%} style="{{ fieldValues.style }}"{% endif %}>
+        <td {% if fieldValues.style %} style="{{ fieldValues.style }}"{% endif %}>
             <label>{{ fieldValues.label }}</label><br>
             {% if field.dropdown %}
             <select id="{{ field }}_qualifier" name="{{ field }}_qualifier">
@@ -19,9 +19,9 @@
             <label for "{{ field }}_include_child">Include child terms?</label>
             <input type="checkbox" id="{{ field }}_include_child" name="{{ field }}_include_child">
            {% endif %}</td>
-        {% if fieldValues.pick_list %}
+        {% if fieldValues.type == 'dropdown' %}
           <td>
-            <select id="{{ field }}_dropdown" name="{{ field }}_dropdown">
+            <select id="{{ field }}" name="{{ field }}_dropdown">
                 <option value="" selected></option>
                 {% for display, value in fieldValues.pick_list.items %}
                     <option value="{{ value }}"{% if value == searchValues.dropdown %} selected{% endif %}>{{ display }}</option>

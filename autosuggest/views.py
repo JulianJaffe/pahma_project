@@ -20,13 +20,7 @@ config = cspace.getConfig(path.join(settings.BASE_PARENT_DIR, 'config'), 'autosu
 connect_string = config.get('connect', 'connect_string')
 
 import sys, json, re
-import cgi
-import cgitb;
-
-cgitb.enable()  # for troubleshooting
 import pgdb
-
-form = cgi.FieldStorage()
 
 timeoutcommand = 'set statement_timeout to 500'
 
@@ -46,9 +40,7 @@ def dbtransaction(q, elementID, connect_string):
     # for which the sought value is relevant.
     srchindex = re.search(r'^(..)\.(.*)', elementID)
     srchindex = srchindex.group(1)
-    if srchindex in ['lo']:
-        srchindex = 'location'
-    elif srchindex in ['gr']:
+    if srchindex in ['gr']:
         srchindex = 'group'
     elif srchindex in ['cp']:
         srchindex = 'longplace'
@@ -68,32 +60,34 @@ def dbtransaction(q, elementID, connect_string):
         srchindex = 'concept'
 
     try:
-        if srchindex == 'location':
-            #template = makeTemplate('loctermgroup', "termdisplayname,replace(termdisplayname,' ','0') locationkey","like '%s%%'")
-            # location is special, since we need to make a sort key to defeat postgres' whitespace collation
-            template = """select termdisplayname,replace(termdisplayname,' ','0') locationkey
-            FROM loctermgroup tg
-            INNER JOIN hierarchy h_tg ON h_tg.id=tg.id
-            INNER JOIN hierarchy h_loc ON h_loc.id=h_tg.parentid
-            INNER JOIN misc ON misc.id=h_loc.id and misc.lifecyclestate <> 'deleted'
-            WHERE termdisplayname like '%s%%' order by locationkey limit 30;"""
-        elif srchindex == 'object':
+        if srchindex == 'object':
             # objectnumber is special: not an authority, no need for joins
-            template = "select distinct(objectnumber) FROM collectionobjects_common WHERE objectnumber like '%s%%' ORDER BY objectnumber LIMIT 30;"
+            template = """SELECT cc.objectnumber
+            FROM collectionobjects_common cc
+            JOIN collectionobjects_pahma cp ON (cc.id = cp.id)
+            JOIN misc ON misc.id = cc.id AND misc.lifecyclestate <> 'deleted'
+            WHERE cc.objectnumber like '%s%%'
+            ORDER BY cp.sortableobjectnumber LIMIT 30;"""
         elif srchindex == 'group':
-            template = makeTemplate('grouptermgroup', 'termdisplayname',"like '%s%%'")
+            template = makeTemplate('grouptermgroup', 'termdisplayname', "like '%s%%'")
         elif srchindex == 'place':
-            template = makeTemplate('placetermgroup', 'termname',"ilike '%%%s%%' and termtype='descriptor'")
+            template = makeTemplate('placetermgroup', 'termname', "ilike '%%%s%%' and termtype='descriptor'")
         elif srchindex == 'longplace':
-            template = makeTemplate('placetermgroup', 'termdisplayname',"like '%s%%' and termtype='descriptor'")
+            template = makeTemplate('placetermgroup', 'termdisplayname', "ilike '%s%%' and termtype='descriptor'")
         elif srchindex == 'concept':
-            template = makeTemplate('concepttermgroup', 'termname',"ilike '%%%s%%' and termtype='descriptor'")
+            template = makeTemplate('concepttermgroup', 'termname', "ilike '%%%s%%' and termtype='descriptor'")
         elif srchindex == 'concept2':
-            template = makeTemplate('concepttermgroup', 'termname',"ilike '%%%s%%'")
+            template = makeTemplate('concepttermgroup', 'termname', "ilike '%%%s%%'")
         elif srchindex == 'longplace2':
-            template = makeTemplate('placetermgroup', 'termdisplayname',"like '%s%%'")
+            template = makeTemplate('placetermgroup', 'termdisplayname', "like '%s%%'")
+        elif srchindex == 'person':
+            template = makeTemplate('persontermgroup', 'termdisplayname', "like '%s%%'")
         elif srchindex == 'taxon':
-            template = makeTemplate('taxontermgroup', 'termdisplayname',"like '%s%%'")
+            template = makeTemplate('taxontermgroup', 'termdisplayname', "like '%s%%'")
+        elif srchindex == 'organization':
+            template = makeTemplate('orgtermgroup', 'termdisplayname', "like '%s%%'")
+        else:
+            pass
 
         #sys.stderr.write('template %s' % template)
 

@@ -17,6 +17,7 @@ BMAPPERDIR = config.get('search', 'BMAPPERDIR')
 BMAPPERCONFIGFILE = config.get('search', 'BMAPPERCONFIGFILE')
 SOLRSERVER = config.get('search', 'SOLRSERVER')
 SOLRCORE = config.get('search', 'SOLRCORE')
+FIELDS = config.get('search', 'FIELDS')
 LOCALDIR = config.get('search', 'LOCALDIR')
 DROPDOWNS = config.get('search', 'DROPDOWNS').split(',')
 SEARCH_QUALIFIERS = config.get('search', 'SEARCH_QUALIFIERS').split(',')
@@ -46,5 +47,5 @@ PARMS = {
     'blobs': ['blob_ss', 'true', '', 'blob_ss', ''],
 }
 
-CFGPARMS = cspace.getJSONConfig(path.join(settings.BASE_PARENT_DIR, 'config'), 'defaultFields')
+CFGPARMS = cspace.getJSONConfig(path.join(settings.BASE_PARENT_DIR, 'config'), FIELDS)
 #print PARMS

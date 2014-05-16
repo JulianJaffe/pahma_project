@@ -11,11 +11,17 @@ from cspace_django_site.main import cspace_django_site
 
 # global variables
 
-from appconfig import PARMS, MAXMARKERS, MAXRESULTS, MAXLONGRESULTS, MAXFACETS, IMAGESERVER, BMAPPERSERVER, BMAPPERDIR
+from appconfig import CFGPARMS, MAXMARKERS, MAXRESULTS, MAXLONGRESULTS, MAXFACETS, IMAGESERVER, BMAPPERSERVER, BMAPPERDIR
 from appconfig import BMAPPERCONFIGFILE, SOLRSERVER, SOLRCORE, LOCALDIR, DROPDOWNS, SEARCH_QUALIFIERS
 
 SolrIsUp = True
 FACETS = {}
+BLOBS = 'blob_ss'
+L1 = 'location_0_coordinate'
+L2 = 'location_1_coordinate'
+CFGPARMS['blobs'] = {"Label": "blob", "Term": BLOBS}
+CFGPARMS['L1'] = {"Label": "L1", "Term": L1}
+CFGPARMS['L2'] = {"Label": "L2", "Term": L2}
 
 # Get an instance of a logger, log some startup info
 logger = logging.getLogger(__name__)
@@ -289,33 +295,33 @@ def doSearch(solr_server, solr_core, context):
                 t = t.strip()
                 if t == 'Null':
                     t = '[* TO *]'
-                    index = '-' + PARMS[p][3]
+                    index = '-' + CFGPARMS[p]["Term"]
                 else:
                     if DROPDOWNS and p in DROPDOWNS:
                         # if it's a value in a dropdown, it must always be an "exact search"
                         t = '"' + t + '"'
-                        index = PARMS[p][3].replace('_txt', '_s')
+                        index = CFGPARMS[p]["Term"].replace('_txt', '_s')
                     elif p + '_qualifier' in requestObject:
                         # print 'qualifier:',requestObject[p+'_qualifier']
                         qualifier = requestObject[p + '_qualifier']
                         if qualifier == 'exact':
-                            index = PARMS[p][3].replace('_txt', '_s')
+                            index = CFGPARMS[p]["Term"].replace('_txt', '_s')
                             t = '"' + t + '"'
                         elif qualifier == 'phrase':
-                            index = PARMS[p][3]
+                            index = CFGPARMS[p]["Term"]
                             t = '"' + t + '"'
                         elif qualifier == 'keyword':
                             t = t.split(' ')
                             t = ' +'.join(t)
                             t = '(+' + t + ')'
                             t = t.replace('+-', '-') # remove the plus if user entered a minus
-                            index = PARMS[p][3]
+                            index = CFGPARMS[p]["Term"]
                     else:
                         t = t.split(' ')
                         t = ' +'.join(t)
                         t = '(+' + t + ')'
                         t = t.replace('+-', '-') # remove the plus if user entered a minus
-                        index = PARMS[p][3]
+                        index = CFGPARMS[p]["Term"]
                 if t == 'OR': t = '"OR"'
                 if t == 'AND': t = '"AND"'
                 #if t == 'NOT'; t = '"NOT"' Is this how to deal with NOTs?
@@ -334,14 +340,14 @@ def doSearch(solr_server, solr_core, context):
 
     try:
         pixonly = requestObject['pixonly']
-        querystring += " AND %s:[* TO *]" % PARMS['blobs'][3]
+        querystring += " AND %s:[* TO *]" % BLOBS
         url += '&pixonly=True'
     except:
         pixonly = None
 
     try:
         locsonly = requestObject['locsonly']
-        querystring += " AND %s:[* TO *]" % PARMS['L1'][3]
+        querystring += " AND %s:[* TO *]" % L1
         url += '&locsonly=True'
     except:
         locsonly = None
@@ -362,13 +368,13 @@ def doSearch(solr_server, solr_core, context):
     for i, listItem in enumerate(results):
         item = {}
         item['counter'] = i
-        for p in PARMS:
+        for p in CFGPARMS:
             try:
                 # make all arrays into strings for display
-                if type(listItem[PARMS[p][3]]) == type([]):
-                    item[p] = ', '.join(listItem[PARMS[p][3]])
+                if type(listItem[CFGPARMS[p]["Term"]]) == type([]):
+                    item[p] = ', '.join(listItem[CFGPARMS[p]["Term"]])
                 else:
-                    item[p] = listItem[PARMS[p][3]]
+                    item[p] = listItem[CFGPARMS[p]["Term"]]
 
                 # handle dates (convert them to collatable strings)
                 if isinstance(item[p], datetime.date):
@@ -398,9 +404,9 @@ def doSearch(solr_server, solr_core, context):
     context['count'] = response._numFound
     m = {}
     context['labels'] = {}
-    for p in PARMS:
-        m[PARMS[p][3].replace('_txt', '_s')] = p
-        context['labels'][p] = PARMS[p][0]
+    for p in CFGPARMS:
+        m[CFGPARMS[p]["Term"].replace('_txt', '_s')] = p
+        context['labels'][p] = CFGPARMS[p]["Label"]
     context['fields'] = [m[f] for f in facetfields]
     context['facetflds'] = [[m[f], facetflds[f]] for f in facetfields]
     context['range'] = range(len(facetfields))
