@@ -7,10 +7,10 @@ import pgdb
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-timeoutcommand = "set statement_timeout to 270000; SET NAMES 'utf8';"
+timeoutcommand = "set statement_timeout to 240000; SET NAMES 'utf8';"
 
 def testDB(config):
-    dbconn = pgdb.connect(config.get('connect', 'connect_string'))
+    dbconn = pgdb.connect(database=config.get('connect', 'connect_string'))
     objects = dbconn.cursor()
     try:
         objects.execute('set statement_timeout to 5000')
@@ -25,13 +25,70 @@ def testDB(config):
 
 
 def dbtransaction(command, config):
-    dbconn = pgdb.connect(config.get('connect', 'connect_string'))
+    dbconn = pgdb.connect(database=config.get('connect', 'connect_string'))
     cursor = dbconn.cursor()
     cursor.execute(command)
 
 
-def setquery(type, location, qualifier):
+def setquery(type, location, qualifier, institution):
+
     if type == 'inventory':
+
+        if institution == 'bampfa':
+            return """
+            SELECT distinct on (locationkey,objectnumber,h3.name)
+(case when cb.computedcrate is Null then l.termdisplayName
+     else concat(l.termdisplayName,
+     ': ',regexp_replace(cb.computedcrate, '^.*\\)''(.*)''$', '\\1')) end) AS storageLocation,
+replace(concat(l.termdisplayName,
+     ': ',regexp_replace(cb.computedcrate, '^.*\\)''(.*)''$', '\\1')),' ','0') AS locationkey,
+m.locationdate,
+cc.objectnumber objectnumber,
+cc.numberofobjects objectCount,
+tg.bampfatitle,
+rc.subjectcsid movementCsid,
+lc.refname movementRefname,
+rc.subjectcsid  objectCsid,
+''  objectRefname,
+m.id moveid,
+rc.subjectdocumenttype,
+rc.objectdocumenttype,
+cc.objectnumber sortableobjectnumber,
+cb.computedcrate crateRefname,
+regexp_replace(cb.computedcrate, '^.*\\)''(.*)''$', '\\1') crate,
+regexp_replace(pg.bampfaobjectproductionperson, '^.*\\)''(.*)''$', '\\1') AS Artist
+
+FROM loctermgroup l
+
+join hierarchy h1 on l.id = h1.id
+join locations_common lc on lc.id = h1.parentid
+join movements_common m on m.currentlocation = lc.refname
+
+join hierarchy h2 on m.id = h2.id
+join relations_common rc on rc.objectcsid = h2.name
+
+join hierarchy h3 on rc.subjectcsid = h3.name
+join collectionobjects_common cc on (h3.id = cc.id and cc.computedcurrentlocation = lc.refname)
+
+left outer join collectionobjects_bampfa cb on (cb.id=cc.id)
+
+LEFT OUTER JOIN hierarchy h4 ON (h4.parentid = cc.id AND h4.name = 'collectionobjects_bampfa:bampfaTitleGroupList' and h4.pos=0)
+LEFT OUTER JOIN bampfatitlegroup tg ON (h4.id = tg.id)
+
+left outer join hierarchy h5 ON (cc.id = h5.parentid AND h5.name = 'collectionobjects_bampfa:bampfaObjectProductionPersonGroupList' AND (h5.pos = 0 OR h5.pos IS NULL))
+left outer join bampfaobjectproductionpersongroup pg ON (h5.id = pg.id)
+
+join misc ms on (cc.id=ms.id and ms.lifecyclestate <> 'deleted')
+
+WHERE
+   l.termdisplayName = '""" + str(location) + """'
+
+ORDER BY locationkey,objectnumber asc
+
+            """
+
+        # else:
+
         return """
 SELECT distinct on (locationkey,sortableobjectnumber,h3.name)
 (case when ca.computedcrate is Null then l.termdisplayName
@@ -67,8 +124,7 @@ join hierarchy h3 on rc.objectcsid = h3.name
 join collectionobjects_common cc on (h3.id = cc.id and cc.computedcurrentlocation = lc.refname)
 
 left outer join collectionobjects_anthropology ca on (ca.id=cc.id)
-left outer join hierarchy h5 on (cc.id = h5.parentid and h5.name =
-'collectionobjects_common:objectNameList' and h5.pos=0)
+left outer join hierarchy h5 on (cc.id = h5.parentid and h5.name = 'collectionobjects_common:objectNameList' and h5.pos=0)
 left outer join objectnamegroup ong on (ong.id=h5.id)
 
 left outer join collectionobjects_pahma cp on (cp.id=cc.id)
@@ -121,7 +177,7 @@ join hierarchy h2 on (r1.objectcsid=h2.name and h2.isversion is %s true)
 join movements_common mc on (mc.id=h2.id)
 join movements_botgarden mb on (mc.id=mb.id)
 left outer
-join loctermgroup lct on (regexp_replace(mb.previouslocation, '^.*\\)''(.*)''$', '\\1')=lct.termdisplayname)
+join loctermgroup lct on (regexp_replace(mc.currentlocation, '^.*\\)''(.*)''$', '\\1')=lct.termdisplayname)
 %s
 join collectionspace_core core on mc.id=core.id
 join collectionobjects_botgarden cob on (co1.id=cob.id)
@@ -152,7 +208,72 @@ LIMIT 6000"""
             # houston, we got a problem...query not qualified
 
     elif type == 'keyinfo' or type == 'barcodeprint' or type == 'packinglist':
-        return """
+
+        if institution == 'bampfa':
+            return """
+            SELECT distinct on (location,objectnumber)
+(case when cb.computedcrate is Null then l.termdisplayName
+     else concat(l.termdisplayName,
+     ': ',regexp_replace(cb.computedcrate, '^.*\\)''(.*)''$', '\\1')) end) AS location,
+cc.objectnumber AS objectnumber,
+h3.name,
+tg.bampfatitle AS Title,
+regexp_replace(pg.bampfaobjectproductionperson, '^.*\\)''(.*)''$', '\\1') AS Artist,
+regexp_replace(pg.bampfaobjectproductionpersonrole, '^.*\\)''(.*)''$', '\\1') AS ArtistRole,
+cc.physicalDescription AS Medium,
+mp.dimensionsummary AS measurement,
+cc.collection AS Collection,
+cb.creditline AS CreditLine,
+cb.legalstatus AS LegalStatus,
+'dd MM YYYY' AS AcqDate,
+case when (bd.item is not null and bd.item <> '') then bd.item end AS briefdescription,
+m.movementnote,
+cb.accNumberPrefix,
+cb.accNumberPart1 ,
+cb.accNumberPart2,
+cb.accNumberPart3,
+cb.accNumberPart4 ,
+cb.accNumberPart5 ,
+pg.bampfaobjectproductionperson AS Artistrefname,
+pg.bampfaobjectproductionpersonrole AS ArtistRolerefname
+
+FROM loctermgroup l
+
+join hierarchy h1 on l.id = h1.id
+join locations_common lc on lc.id = h1.parentid
+join movements_common m on m.currentlocation = lc.refname
+
+join hierarchy h2 on m.id = h2.id
+join relations_common rc on rc.objectcsid = h2.name
+
+join hierarchy h3 on rc.subjectcsid = h3.name
+
+join collectionobjects_common cc on (h3.id = cc.id and cc.computedcurrentlocation = lc.refname)
+join misc ms on (cc.id=ms.id and ms.lifecyclestate <> 'deleted')
+join collectionobjects_bampfa cb on (cb.id=cc.id)
+
+LEFT OUTER JOIN hierarchy h4 ON (h4.parentid = cc.id AND h4.name = 'collectionobjects_bampfa:bampfaTitleGroupList' and h4.pos=0)
+LEFT OUTER JOIN bampfatitlegroup tg ON (h4.id = tg.id)
+
+left outer join hierarchy h5 ON (cc.id = h5.parentid AND h5.name = 'collectionobjects_bampfa:bampfaObjectProductionPersonGroupList' AND (h5.pos = 0 OR h5.pos IS NULL))
+left outer join bampfaobjectproductionpersongroup pg ON (h5.id = pg.id)
+
+left outer join hierarchy h7 ON (h7.parentid = cc.id AND h7.name = 'collectionobjects_common:measuredPartGroupList' and h7.pos=0)
+left outer join measuredpartgroup mp ON (h7.id = mp.id)
+
+join collectionobjects_common_briefdescriptions bd on (bd.id=cc.id and bd.pos=0)
+
+WHERE
+   l.termdisplayName = '""" + str(location) + """'
+
+
+ORDER BY location,objectnumber asc
+LIMIT 30000
+            """
+
+        else:
+
+            return """
 SELECT distinct on (locationkey,sortableobjectnumber,h3.name)
 (case when ca.computedcrate is Null then l.termdisplayName
      else concat(l.termdisplayName,
@@ -195,7 +316,9 @@ ac.acquisitionreferencenumber accNum,
 donor.item pdRefName,
 ac.id accID,
 h9.name accCSID,
-cp.inventoryCount
+cp.inventoryCount,
+cc.collection,
+rd.item
 
 FROM loctermgroup l
 
@@ -209,8 +332,7 @@ join relations_common rc on rc.subjectcsid = h2.name
 join hierarchy h3 on rc.objectcsid = h3.name
 join collectionobjects_common cc on (h3.id = cc.id and cc.computedcurrentlocation = lc.refname)
 
-left outer join hierarchy h4 on (cc.id = h4.parentid and h4.name =
-'collectionobjects_common:objectNameList' and (h4.pos=0 or h4.pos is null))
+left outer join hierarchy h4 on (cc.id = h4.parentid and h4.name = 'collectionobjects_common:objectNameList' and (h4.pos=0 or h4.pos is null))
 left outer join objectnamegroup ong on (ong.id=h4.id)
 
 left outer join collectionobjects_anthropology ca on (ca.id=cc.id)
@@ -237,6 +359,8 @@ FULL OUTER JOIN hierarchy h8 ON (cc.id = h8.parentid AND h8.name = 'collectionob
 FULL OUTER JOIN pahmaaltnumgroup an ON (h8.id = an.id)
 
 join misc ms on (cc.id=ms.id and ms.lifecyclestate <> 'deleted')
+
+left outer join collectionobjects_common_responsibledepartments rd on (rd.id=cc.id and rd.pos=0)
 
 WHERE
    l.termdisplayName = '""" + str(location) + """'
@@ -326,8 +450,8 @@ left outer join taxon_naturalhistory tn on (tc.id=tn.id) """
 # mc.reasonformove = 'Dead'.
 #left outer join taxon_naturalhistory tn on (tc.id=tn.id)""" % ("and con.rare = 'true'","and cob.deadflag = 'false'")
 
-def getlocations(location1, location2, num2ret, config, updateType):
-    dbconn = pgdb.connect(config.get('connect', 'connect_string'))
+def getlocations(location1, location2, num2ret, config, updateType, institution):
+    dbconn = pgdb.connect(database=config.get('connect', 'connect_string'))
     objects = dbconn.cursor()
     objects.execute(timeoutcommand)
 
@@ -336,7 +460,9 @@ def getlocations(location1, location2, num2ret, config, updateType):
     result = []
 
     for loc in getloclist('set', location1, '', num2ret, config):
-        getobjects = setquery(updateType, loc[0], '')
+        getobjects = setquery(updateType, loc[0], '', institution)
+
+        sys.stderr.write("getloclist %s" % location1)
 
         try:
             elapsedtime = time.time()
@@ -345,10 +471,12 @@ def getlocations(location1, location2, num2ret, config, updateType):
             if debug: sys.stderr.write('all objects: %s :: %s\n' % (loc[0], elapsedtime))
         except pgdb.DatabaseError, e:
             sys.stderr.write('getlocations select error: %s' % e)
-            return result
+            #return result
+            raise
         except:
             sys.stderr.write("some other getlocations database error!")
-            return result
+            #return result
+            raise
 
         try:
             rows = objects.fetchall()
@@ -360,6 +488,7 @@ def getlocations(location1, location2, num2ret, config, updateType):
             for row in rows:
                 result.append(row)
         except:
+            sys.stderr.write("other getobjects error: %s" % len(rows))
             raise
             #sys.stderr.write("other getobjects error: %s" % len(rows))
 
@@ -367,7 +496,7 @@ def getlocations(location1, location2, num2ret, config, updateType):
 
 
 def getplants(location1, location2, num2ret, config, updateType, qualifier):
-    dbconn = pgdb.connect(config.get('connect', 'connect_string'))
+    dbconn = pgdb.connect(database=config.get('connect', 'connect_string'))
     objects = dbconn.cursor()
     objects.execute(timeoutcommand)
 
@@ -376,7 +505,7 @@ def getplants(location1, location2, num2ret, config, updateType, qualifier):
     result = []
 
     #for loc in getloclist('set',location1,'',num2ret,config):
-    getobjects = setquery(updateType, location1, qualifier)
+    getobjects = setquery(updateType, location1, qualifier, 'ucbg')
     #print "<span>%s</span>" % getobjects
     try:
         elapsedtime = time.time()
@@ -405,12 +534,14 @@ def getloclist(searchType, location1, location2, num2ret, config):
     # 'set' means 'next num2ret locations', otherwise prefix match
     if searchType == 'set':
         whereclause = "WHERE locationkey >= replace('" + location1 + "',' ','0')"
+    elif searchType == 'exact':
+        whereclause = "WHERE locationkey = replace('" + location1 + "',' ','0')"
     elif searchType == 'prefix':
         whereclause = "WHERE locationkey LIKE replace('" + location1 + "%',' ','0')"
     elif searchType == 'range':
         whereclause = "WHERE locationkey >= replace('" + location1 + "',' ','0') AND locationkey <= replace('" + location2 + "',' ','0')"
 
-    dbconn = pgdb.connect(config.get('connect', 'connect_string'))
+    dbconn = pgdb.connect(database=config.get('connect', 'connect_string'))
     objects = dbconn.cursor()
     objects.execute(timeoutcommand)
     if int(num2ret) > 30000: num2ret = 30000
@@ -431,10 +562,13 @@ INNER JOIN misc
 order by locationkey
 limit """ + str(num2ret)
 
-    objects.execute(getobjects)
-    #for object in objects.fetchall():
-    #print object
-    return objects.fetchall()
+    try:
+        objects.execute(getobjects)
+        #for object in objects.fetchall():
+        #print object
+        return objects.fetchall()
+    except:
+        raise
 
 
 def getobjlist(searchType, object1, object2, num2ret, config):
@@ -450,7 +584,7 @@ INNER JOIN misc
 WHERE
      cc.objectNumber = '%s'"""
 
-    dbconn = pgdb.connect(config.get('connect', 'connect_string'))
+    dbconn = pgdb.connect(database=config.get('connect', 'connect_string'))
     objects = dbconn.cursor()
     objects.execute(timeoutcommand)
     if int(num2ret) > 1000: num2ret = 1000
@@ -572,7 +706,7 @@ limit """ + str(num2ret)
 
 
 def findcurrentlocation(csid, config):
-    dbconn = pgdb.connect(config.get('connect', 'connect_string'))
+    dbconn = pgdb.connect(database=config.get('connect', 'connect_string'))
     objects = dbconn.cursor()
     objects.execute(timeoutcommand)
 
@@ -587,7 +721,7 @@ def findcurrentlocation(csid, config):
 
 
 def getrefname(table, term, config):
-    dbconn = pgdb.connect(config.get('connect', 'connect_string'))
+    dbconn = pgdb.connect(database=config.get('connect', 'connect_string'))
     objects = dbconn.cursor()
     objects.execute(timeoutcommand)
 
@@ -622,7 +756,7 @@ def getrefname(table, term, config):
 
 
 def findrefnames(table, termlist, config):
-    dbconn = pgdb.connect(config.get('connect', 'connect_string'))
+    dbconn = pgdb.connect(database=config.get('connect', 'connect_string'))
     objects = dbconn.cursor()
     objects.execute(timeoutcommand)
 
@@ -641,7 +775,7 @@ def findrefnames(table, termlist, config):
     return result
 
 def finddoctypes(table, doctype, config):
-    dbconn = pgdb.connect(config.get('connect', 'connect_string'))
+    dbconn = pgdb.connect(database=config.get('connect', 'connect_string'))
     doctypes = dbconn.cursor()
     doctypes.execute(timeoutcommand)
 
@@ -656,7 +790,7 @@ def finddoctypes(table, doctype, config):
 
 
 def getobjinfo(museumNumber, config):
-    dbconn = pgdb.connect(config.get('connect', 'connect_string'))
+    dbconn = pgdb.connect(database=config.get('connect', 'connect_string'))
     objects = dbconn.cursor()
     objects.execute(timeoutcommand)
 
@@ -685,7 +819,7 @@ WHERE co.objectnumber = '%s' LIMIT 1""" % museumNumber
 
 
 def gethierarchy(query, config):
-    dbconn = pgdb.connect(config.get('connect', 'connect_string'))
+    dbconn = pgdb.connect(database=config.get('connect', 'connect_string'))
     institution = config.get('info', 'institution')
     objects = dbconn.cursor()
     objects.execute(timeoutcommand)
@@ -747,7 +881,7 @@ ORDER BY ParentPlace, Place
 
 
 def getCSID(argType, arg, config):
-    dbconn = pgdb.connect(config.get('connect', 'connect_string'))
+    dbconn = pgdb.connect(database=config.get('connect', 'connect_string'))
     objects = dbconn.cursor()
     objects.execute(timeoutcommand)
 
@@ -769,7 +903,7 @@ WHERE pc.refname ILIKE '%""" + arg + "%%'"
 
 
 def getCSIDs(argType, arg, config):
-    dbconn = pgdb.connect(config.get('connect', 'connect_string'))
+    dbconn = pgdb.connect(database=config.get('connect', 'connect_string'))
     objects = dbconn.cursor()
     objects.execute(timeoutcommand)
 
@@ -783,7 +917,7 @@ WHERE computedcrate ILIKE '%%''%s''%%'""" % arg
 
 
 def findparents(refname, config):
-    dbconn = pgdb.connect(config.get('connect', 'connect_string'))
+    dbconn = pgdb.connect(database=config.get('connect', 'connect_string'))
     objects = dbconn.cursor()
     objects.execute(timeoutcommand)
     query = """WITH RECURSIVE ethnculture_hierarchyquery as (
@@ -823,7 +957,7 @@ order by level""" % refname.replace("'", "''")
         return [["findparents error"]]
 
 def getCSIDDetail(config, csid, detail):
-    dbconn = pgdb.connect(config.get('connect', 'connect_string'))
+    dbconn = pgdb.connect(database=config.get('connect', 'connect_string'))
     objects = dbconn.cursor()
     objects.execute(timeoutcommand)
 
@@ -881,12 +1015,12 @@ AND csid.name = '%s'""" % csid
         return ''
     try:
         objects.execute(query)
-        return objects.fetchone()
+        return objects.fetchone()[0]
     except:
         return ''
 
 def checkData(config, data, datatype):
-    dbconn = pgdb.connect(config.get('connect', 'connect_string'))
+    dbconn = pgdb.connect(database=config.get('connect', 'connect_string'))
     objects = dbconn.cursor()
     objects.execute(timeoutcommand)
 
@@ -910,7 +1044,7 @@ AND lc.refname LIKE 'urn:cspace:pahma.cspace.berkeley.edu:locationauthorities:na
     return objects.fetchone()
 
 def getSitesByOwner(config, owner):
-    dbconn = pgdb.connect(config.get('connect', 'connect_string'))
+    dbconn = pgdb.connect(database=config.get('connect', 'connect_string'))
     objects = dbconn.cursor()
     objects.execute(timeoutcommand)
 
@@ -929,7 +1063,7 @@ ORDER BY REGEXP_REPLACE(fcp.item, '^.*\)''(.*)''$', '\\1')"""
     return objects.fetchall()
 
 def getDisplayName(config, refname):
-    dbconn = pgdb.connect(config.get('connect', 'connect_string'))
+    dbconn = pgdb.connect(database=config.get('connect', 'connect_string'))
     objects = dbconn.cursor()
     objects.execute(timeoutcommand)
 
@@ -941,7 +1075,7 @@ WHERE pog.owner LIKE '""" + refname + "%'"
     return objects.fetchone()
 
 def getObjDetailsByOwner(config, owner):
-    dbconn = pgdb.connect(config.get('connect', 'connect_string'))
+    dbconn = pgdb.connect(database=config.get('connect', 'connect_string'))
     objects = dbconn.cursor()
     objects.execute(timeoutcommand)
 
