@@ -1,0 +1,41 @@
+{% extends "cspace_django_site/base_site.html" %}
+{% load i18n admin_static %}
+
+{% block loginBtn %}
+<div id="user-tools">
+    <a href="{% url 'login' %}?next=/pahma_project/web_reports/list/" id="login" class="prettyBtn">{% trans 'Sign in' %}</a>
+</div>
+{% endblock %}
+
+{% block branding %}
+    <h4 class="bannerLeft"></h4>
+    <h4 class="bannerRight"></h4>
+    <h1 class="bannerTitle" id="site-name">{{ Title }}</h1>
+{% endblock %}
+
+{% block content %}
+    <div id="content-main">
+        <table>
+            <tr>
+                <th scope="row">Reports</th>
+            </tr>
+                {% for name, url in reports %}
+                <tr>
+                    <td><a href="web_reports/{{ url }}">{{ name }}</a></td>
+                </tr>
+                {% endfor %}
+        </table>
+    </div>
+{% endblock %}
+
+{% block footer %}
+  <table width="100%">
+    <tbody>
+    <tr>
+      <td style="vertical-align: middle">Current time: {{ timestamp }}. This is version {{ version }}</td>
+      <td style="vertical-align: middle;width: 70px;">powered by </td>
+      <td style="text-align: right; width: 160px;"><img src="{% static "cspace_django_site/images/header-logo-cspace.png" %}" height="30px"></td>
+    </tr>
+    </tbody>
+  </table>
+{% endblock %}

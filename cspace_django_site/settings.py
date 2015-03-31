@@ -159,7 +159,8 @@ INSTALLED_APPS = (
     'imaginator',
     'search',
     'uploadmedia',
-    'locviewer'
+    'locviewer',
+    'web_reports'
 )
 
 # A sample logging configuration. The only tangible logging

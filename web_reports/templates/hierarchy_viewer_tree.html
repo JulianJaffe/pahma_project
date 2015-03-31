@@ -1,0 +1,23 @@
+<script>
+    var data = [
+        {{ data|safe }}
+    ];
+$(function() {
+    $('#hierarchy_viewer_results').tree({
+        data: data,
+        autoOpen: true,
+        useContextMenu: false,
+        selectable: false
+    });
+    $('#hierarchy_viewer_results').bind(
+        'tree.click',
+        function(event) {
+            // The clicked node is 'event.node'
+            var node = event.node;
+            var URL = node.url;
+            if (URL) {
+                window.open(URL);
+            }
+        }
+    );
+});</script>

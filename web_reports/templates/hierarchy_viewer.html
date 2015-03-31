@@ -1,0 +1,60 @@
+{% extends "cspace_django_site/base_site.html" %}
+{% load i18n admin_static %}
+{% load staticfiles %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" type="text/css" href="{% static "cspace_django_site/css/smoothness/jquery-ui-1.10.3.custom.min.css" %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static "web_reports/css/jqtree.css" %}"/>
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript" src="{% static "cspace_django_site/js/jquery-1.10.0.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "cspace_django_site/js/jquery-ui-1.10.3.custom.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "web_reports/js/tree.jquery.js" %}"></script>
+{% endblock %}
+
+{% block loginBtn %}
+<div id="user-tools">
+    <a href="{% url 'login' %}?next=/pahma_project/web_reports/hierarchy_viewer/" id="login" class="prettyBtn">{% trans 'Sign in' %}</a>
+</div>
+{% endblock %}
+
+{% block branding %}
+    <h4 class="bannerLeft"></h4>
+    <h4 class="bannerRight"></h4>
+    <h1 class="bannerTitle" id="site-name">{{ title }}</h1>
+{% endblock %}
+
+{% block content %}
+    <div id="search">
+        <form name="get_authority">
+            <label for="hierarchy">Authority: </label>
+            <select name="hierarchy" id="hierarchy" required>
+                <option value="None">Select an authority</option>
+                {% for hierarchy in hierarchies %}
+                    {% if hierarchy.1 == selected_hierarchy %}
+                        <option value={{ hierarchy.1 }} selected>{{ hierarchy.0 }}</option>
+                    {%  else %}
+                        <option value={{ hierarchy.1 }}>{{ hierarchy.0 }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+            <input id="view_hierarchy" class="save" type="submit" value="View Hierarchy">
+        </form>
+    </div>
+    <div id="hierarchy_viewer_results">
+    {% include "hierarchy_viewer_tree.html" %}
+    </div>
+{% endblock %}
+
+{% block footer %}
+  <table width="100%">
+    <tbody>
+    <tr>
+      <td style="vertical-align: middle">Current time: {{ timestamp }}. This is version {{ version }}</td>
+      <td style="vertical-align: middle;width: 70px;">powered by </td>
+      <td style="text-align: right; width: 160px;"><img src="{% static "cspace_django_site/images/header-logo-cspace.png" %}" height="30px"></td>
+    </tr>
+    </tbody>
+  </table>
+{% endblock %}
