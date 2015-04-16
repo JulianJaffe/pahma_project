@@ -41,6 +41,7 @@ urlpatterns = patterns('',
                        url(r'^landing/?', include('landing.urls', namespace='landing')),
                        url(r'^uploadmedia/', include('uploadmedia.urls', namespace='uploadmedia')),
                        url(r'^locviewer/', include('locviewer.urls', namespace='locviewer')),
-                       url(r'^web_reports/?', include('web_reports.urls', namespace='web_reports'))
+                       url(r'^web_reports/?', include('web_reports.urls', namespace='web_reports')),
+                       url(r'^inventory/?', include('inventory.urls', namespace='inventory')),
 
 )

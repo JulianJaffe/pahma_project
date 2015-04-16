@@ -99,7 +99,7 @@ def getPrinters():
     ]
     return printerlist
 
-def getFieldset():
+def getFieldsets():
 
     fieldlist = [
         ("Key Info", "keyinfo"),
@@ -107,7 +107,7 @@ def getFieldset():
         ("Registration", "registration"),
         ("HSR Info", "hsrinfo"),
         ("Object Type/CM", "objtypecm"),
-        ("Taxonomy", "taxonomy")
+        #("Taxonomy", "taxonomy")  # All the db and display code is already written and integrated, but services does not yet work
     ]
     return fieldlist
 
@@ -118,7 +118,8 @@ def getHierarchies():
         ("Archaeological Culture", "archculture"),
         ("Ethnographic File Codes", "ethusecode"),
         ("Materials", "material_ca"),
-        ("Taxonomy", "taxonomy")
+        ("Taxonomy", "taxonomy"),
+        ("Object Name", "objectname")
     ]
     return authoritylist
 
@@ -155,15 +156,15 @@ def getAltNumTypes():
 
 def getObjType():
     objtypelist = [
-        ("Archaeology", "archaeology"),
-        ("Ethnography", "ethnography"),
+        ("archaeology", "archaeology"),
+        ("ethnography", "ethnography"),
         ("(not specified)", "(not specified)"),
-        ("Documentation", "documentation"),
-        ("None (Registration)", "none (Registration)"),
+        ("documentation", "Documentation"),
+        ("none (Registration)", "None (Registration)"),
         ("None", "None"),
-        ("Sample", "sample"),
-        ("Indeterminate", "indeterminate"),
-        ("Unknown", "unknown")
+        ("sample", "Sample"),
+        ("indeterminate", "Indeterminate"),
+        ("unknown", "Unknown")
     ]
     return objtypelist
 
@@ -223,3 +224,19 @@ def getAgencies():
         ("U.S. Army Corps of Engineers", "urn:cspace:pahma.cspace.berkeley.edu:orgauthorities:name(organization):item:name(9133)"),
     ]
     return agencylist
+
+def invHeaders(fieldset):
+    if fieldset == 'keyinfo':
+        return ['Museum #', 'Object Name', 'Count', 'Field Collection Place', 'Cultural Group', 'Ethnographic File Code']
+    elif fieldset == 'namedesc':
+        return ['Museum #', 'Object Name', 'Brief Description']
+    elif fieldset == 'registration':
+        return ['Museum #', 'Object Name', 'Alt Num', 'Alt Num Type', 'Field Collector', 'Donor', 'Accession']
+    elif fieldset == 'hsrinfo':
+        return ['Museum #', 'Object Name', 'Count', 'Count Note', 'Field Collection Place', 'Brief Description']
+    elif fieldset == 'objtypecm':
+        return ['Museum #', 'Object Name', 'Count', 'Object Type', 'Collection Manager', 'Field Collection Place', 'P?']
+    elif fieldset == 'taxonomy':
+        return ['Museum #', 'Object Name', 'Taxon', 'Qual.', 'Kind', 'Identified By', 'Institution', 'Display Date', 'Notes']
+    else:
+        return 'Error'

@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django import forms
 from common.constants import getAgencies, getHierarchies
-from connector import connector
+from connector import db
 from common import cspace
 from os import path
 from cspace_django_site import settings
@@ -31,9 +31,9 @@ def hierarchy_viewer(request):
         if hierarchy not in [h[1] for h in hierarchies]:
             return render(request, 'hierarchy_viewer.html', context)
         context['selected_hierarchy'] = hierarchy
-        config_file_name = 'HierarchyViewerDev' # Currently hard-coded Dev
+        config_file_name = 'HierarchyViewerProd' # Currently hard-coded Dev
         config = cspace.getConfig(path.dirname(path.abspath(__file__)), config_file_name)
-        res = connector.gethierarchy(hierarchy, config)
+        res = db.gethierarchy(hierarchy, config)
         lookup = {concept.PARENT: concept.PARENT}
         hostname = config.get('connect', 'hostname')
         institution = config.get('info', 'institution')
@@ -75,17 +75,17 @@ def government_holdings(request):
         pretty_agency = [ag[1] for ag in zip(opt_agencies, short_agencies) if ag[0] == agency][0]
         refname = [ag[1] for ag in agencies if ag[0] == pretty_agency][0]
         context['refname'] = refname
-        display_name = connector.getDisplayName(config, refname)[0]
+        display_name = db.getDisplayName(config, refname)[0]
         context['display_name'] = display_name
         hostname = config.get('connect', 'hostname')
         institution = config.get('info', 'institution')
         protocol = config.get('connect', 'protocol')
         port = config.get('connect', 'port')
         link = protocol + '://' + hostname + port + '/collectionspace/ui/'+institution+'/html/place.html?csid='
-        sites = connector.getSitesByOwner(config, refname)
+        sites = db.getSitesByOwner(config, refname)
         link_sites = []
         for site in sites:
-            site_link = link + str(connector.getCSID('placeName', site[0], config)[0]) + '&vocab=place'
+            site_link = link + str(db.getCSID('placeName', site[0], config)[0]) + '&vocab=place'
             s = site + [site_link]
             link_sites.append(s)
         context['sites'] = link_sites

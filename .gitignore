@@ -6,3 +6,4 @@ config/*.cfg
 config/*.csv
 *.DS_Store
 .idea
+*.cfg

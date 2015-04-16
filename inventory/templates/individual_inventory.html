@@ -1,0 +1,75 @@
+<!-- Individual Inventory -->
+{% if totalobjects == 0 %}
+    <tr>
+      <td colspan="3">No objects found in this {% if inv_parameter == 'by_location' %}location.{% else %}range.{% endif %} </td>
+    </tr>
+{% endif %}
+{% for object in data %}
+    <tr>
+        <td class="objno"><a target="cspace" href="{{ object.link }}">{{ object.obj_no }}</a></td>
+        <td class="objname"><input class="objname" type="text" name="name.{{ object.csid }}" value="{{ object.name|default_if_none:'' }}"></td>
+        {% if fieldset == 'keyinfo' %}
+            <td class="veryshortinput"><input class="veryshortinput" type="text" name="count.{{ object.csid }}" value="{{ object.count|default_if_none:'' }}"></td>
+            <td class="zcell">
+              <input type="hidden" name="obj_no.{{ object.csid }}" value="{{ object.obj_no }}">
+              <input type="hidden" name="csid.{{ object.csid }}" value="{{ object.csid }}">
+              <input class="xspan" type="text" size="26" name="fcp.{{ object.csid }}" value="{{ object.fcp|default_if_none:'' }}">
+            </td>
+            <td class="zcell"><input class="xspan" type="text" size="26" name="cult.{{ object.csid }}" value="{{ object.cult|default_if_none:'' }}"></td>
+            <td class="zcell"><input class="xspan" type="text" size="26" name="efc.{{ object.csid }}" value="{{ object.efc|default_if_none:'' }}"></td>
+        {% elif fieldset == 'namedesc' %}
+            <td width="0"></td>
+            <td class="zcell">
+              <input type="hidden" name="obj_no.{{ object.csid }}" value="{{ object.obj_no }}">
+              <input type="hidden" name="csid.{{ object.csid }}" value="{{ object.csid }}">
+              <textarea cols="78" rows="1" name="desc.{{ object.desc }}">{{ object.desc|default_if_none:'' }}</textarea>
+            </td>
+        {% elif fieldset == 'registration' %}
+            <td class="zcell">
+              <input type="hidden" name="obj_no.{{ object.csid }}" value="{{ object.obj_no }}">
+              <input type="hidden" name="csid.{{ object.csid }}" value="{{ object.csid }}">
+              <input class="xspan" type="text" size="13" name="alt_num.{{ object.alt_num }}" value="{{ object.alt_num|default_if_none:'' }}">
+            </td>
+            <td class="zcell">{% include 'altnum.html' with tag=object.csid %}</td>
+            <td class="zcell"><input class="xspan" type="text" size="26" name="collector.{{ object.csid }}" value="{{ object.collector|default_if_none:'' }}"></td>
+            <td class="zcell"><span style="font-size:8">{{ object.donor|default_if_none:'' }}</span></td>
+            <td class="zcell"><a target="cspace" href="{{ object.link2 }}">{{ object.acc_no|default_if_none:'' }}</a></td>
+        {% elif fieldset == 'hsrinfo' %}
+            <td class="veryshortinput">
+              <input class="veryshortinput" type="text" name="count.{{ object.csid }}" value="{{ object.count|default_if_none:'' }}">
+            </td>
+            <td class="zcell">
+              <input type="hidden" name="obj_no.{{ object.csid }}" value="{{ object.obj_no }}">
+              <input type="hidden" name="csid.{{ object.csid }}" value="{{ object.csid }}">
+              <input class="xspan" type="text" size="20" name="count_note.{{ object.csid }}" value="{{ object.count_note|default_if_none:'' }}">
+            </td>
+            <td class="zcell"><input class="xspan" type="text" size="26" name="fcp.{{ object.csid }}" value="{{ object.fcp|default_if_none:'' }}"></td>
+            <td class="zcell"><textarea cols="60" rows="1" name="desc.{{ object.csid }}">{{ object.desc|default_if_none:'' }}</textarea></td>
+        {% elif fieldset == 'objtypecm' %}
+            <td class="veryshortinput">
+              <input class="veryshortinput" type="text" name="count.{{ object.csid }}" value="{{ object.count|default_if_none:'' }}">
+            </td>
+            <td>
+              <input type="hidden" name="obj_no.{{ object.csid }}" value="{{ object.csid }}">
+              <input type="hidden" name="csid.{{ object.csid }}" value="{{ object.csid }}">
+              {% include 'objtype.html' with tag=object.csid %}
+            </td>
+            <td>{% include 'collmans.html' with tag=object.csid %}</td>
+            <td><input class="xspan" type="text" size="26" name="fcp.%{{ object.csid }}" value="{{ object.fcp|default_if_none:'' }}"></td>
+            <td><input type="checkbox"></td>
+        {% elif fieldset == 'taxonomy' %}
+            <td>
+              <input type="hidden" name="obj_no.{{ object.csid }}" value="{{ object.obj_no}}">
+              <input type="hidden" name="csid.{{ object.csid }}" value="{{ object.csid }}">
+              <input class="xspan" type="text" size="26" name="taxon.{{ object.csid }}" value="{{ object.taxon|default_if_none:'' }}">
+            </td>
+            <td>{% include 'qualifiers.html' with tag=object.csid %}</td>
+            <td>{% include 'kinds.html' with tag=object.csid %}</td>
+            <td><input class="xspan" type="text" size="26" name="ident_by.{{ object.csid }}" value="{{ object.ident_by|default_if_none:'' }}"></td>
+            <td><input class="xspan" type="text" size="26" name="tax_inst.{{ object.csid }}" value="{{ object.tax_inst|default_if_none:'' }}"></td>
+            <td><input class="xspan" type="text" size="26" name="date.{{ object.csid }}" value="{{ object.date|default_if_none:'' }}"></td>
+            <td><input class="xspan" type="text" size="26" name="tax_notes.{{ object.csid }}" value="{{ object.tax_notes|default_if_none:'' }}"></td>
+            <td><input type="checkbox"></td>
+        {% endif %}
+    </tr>
+{% endfor %}

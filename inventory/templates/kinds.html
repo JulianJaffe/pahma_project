@@ -1,0 +1,10 @@
+<select class="cell" name="kind.{{ tag }}">
+    <option value="None">Select a qualifier</option>
+    {% for kind in kindss %}
+        {% if object.kind == kind %}
+            <option value="{{ kind.0 }}" selected>{{ kind.1 }}</option>
+        {% else %}
+            <option value="{{ kind.0 }}">{{ kind.1 }}</option>
+        {% endif %}
+    {% endfor %}
+</select>

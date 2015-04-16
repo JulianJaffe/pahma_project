@@ -1,0 +1,10 @@
+<select class="cell" name="coll_man.{{ tag }}">
+    <option value="None">Select a collection manager</option>
+    {% for cm in coll_mans %}
+        {% if object.coll_man == cm.0 %}
+            <option value="{{ cm.0 }}" selected>{{ cm.1 }}</option>
+        {% else %}
+            <option value="{{ cm.0 }}">{{ cm.1 }}</option>
+        {% endif %}
+    {% endfor %}
+</select>
