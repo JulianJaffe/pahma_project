@@ -24,6 +24,13 @@
 {% endblock %}
 
 {% block content %}
+  <div>
+    <table>
+    {% for csid in csids %}
+        <tr><td>{{ csid }}</td></tr>
+    {% endfor %}
+    </table>
+  </div>
 {% endblock %}
 
 {% block footer %}

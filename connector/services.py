@@ -156,11 +156,7 @@ def updateKeyInfo(fieldset, updateItems, config, user):
         collection.text = updateItems['collection']
 
     uri = 'collectionobjects' + '/' + updateItems['objectCsid']
-    payload = '<?xml version="1.0" encoding="UTF-8"?>\n' + etree.tostring(root,encoding='utf-8')
-    # update collectionobject..
-    #print "<br>pretending to post update to %s to REST API..." % updateItems['objectCsid']
-    print "<br>%s<br>" % payload
-    #(url, data, csid, elapsedtime) = cspace.postxml('PUT', uri, realm, hostname, username, password, payload)
+    payload = '<?xml version="1.0" encoding="UTF-8"?>\n' + etree.tostring(root, encoding='utf-8')
     (url, data, csid, elapsedtime) = cspace.postxml(realm, uri, hostname, 'https', '', username, password, payload, 'PUT')
     cspace_logging.logging.writeLog(updateItems, uri, 'PUT', username, config)
 

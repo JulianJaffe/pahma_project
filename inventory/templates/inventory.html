@@ -109,7 +109,7 @@
         {% if error %}
             {% include 'inv_error.html' %}
         {% elif searched %}
-            <form method="post" action="inventory/update">
+            <form method="post" action="/pahma_project/inventory/update">
             {% csrf_token %}
               <input type="hidden" name="fieldset" value="{{ fieldset }}">
               <table>
@@ -137,7 +137,9 @@
                 <tr><td colspan="10" style="text-align: center"><input name="update" class="save" type="submit" value="Submit"></td></tr>
               </table>
             </form>
-            <p style="text-align:center">{{ totalobjects }} object{{ totalobjects|pluralize }} found{% if inv_parameter == 'by_location' %} in {{ totallocations }} location{{ totallocations|pluralize }}{% endif %}.</p>
+            {% if inv_type == 'inv_ind' %}
+                <p style="text-align:center">{{ totalobjects }} object{{ totalobjects|pluralize }} found{% if inv_parameter == 'by_location' %} in {{ totallocations }} location{{ totallocations|pluralize }}{% endif %}.</p>
+            {% endif %}
         {% endif %}
     </div>
 {% endblock %}
