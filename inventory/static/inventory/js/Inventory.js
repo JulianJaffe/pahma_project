@@ -55,4 +55,29 @@ $(document).ready(function(){
             }
         });
     });
+
+$('[name]').map(function () {
+    var elementID = $(this).attr('name');
+    var source = $(this).attr('source');
+    if (source) {
+        // console.log(elementID);
+        $(this).autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                     url: "/pahma_project/suggest/?",
+                     dataType: "json",
+                    data: {
+                        q: request.term,
+                        elementID: elementID,
+                        source: source
+                    },
+                    success: function (data) {
+                        response(data);
+                    }
+                });
+            },
+            minLength: 2
+        });
+    }
+});
 });

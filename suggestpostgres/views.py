@@ -44,7 +44,7 @@ def dbtransaction(q, elementID, connect_string):
 
     # elementID is of the form xx.csid, where xx is a 2-letter code and csid is the csid of the record
     # for which the sought value is relevant.
-    srchindex = re.search(r'^(..)\.(.*)', elementID)
+    srchindex = re.search(r'^(.+)\.(.*)', elementID)
     srchindex = srchindex.group(1)
     if srchindex in ['lo']:
         srchindex = 'location'
