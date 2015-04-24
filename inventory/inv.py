@@ -1,5 +1,11 @@
 from connector import db, services
 
+
+TAG_DICT = {'cult': 'Associated Culture', 'count': 'Count', 'fcp': 'Field Collection Place',
+            'efc': 'Ethnographic Field Code', 'collector': 'Collector', 'taxon': 'Taxon', 'identBy': 'Identifier',
+            'institution': 'Institution'}
+
+
 def build_data_object(fieldset, obj, base_link):
     """
     :param fieldset:    The fieldset to be displayed
@@ -55,7 +61,7 @@ def build_data_object(fieldset, obj, base_link):
 def getRefNames(post, csids, fieldset, inv_type, config):
     refNames2find = {}
 
-    for row, csid in enumerate(csids):
+    for csid in csids:
         if inv_type == 'inv_bulk':
             index = 'user'
         else:
@@ -94,16 +100,16 @@ def getRefNames(post, csids, fieldset, inv_type, config):
             pass
             #error! fieldset not set!
 
-        return refNames2find
+    return refNames2find
 
 
-def do_update(post, fieldset, csids, refNames2find, config):
-    updateType = config.get('info', 'updatetype')
-
+def do_update(post, fieldset, csids, refNames2find, inv_type, user, config):
     numUpdated = 0
+    temp_update = {}
+    temp_nf = {}
     for row, csid in enumerate(csids):
 
-        if updateType == 'bulkedit':
+        if inv_type == 'inv_bulk':
             index = 'user'
         else:
             index = csid
@@ -132,6 +138,14 @@ def do_update(post, fieldset, csids, refNames2find, config):
             updateItems['collection'] = post.get('obj_type.' + index)
             updateItems['responsibleDepartment'] = post.get('coll_man.' + index)
             updateItems['pahmaFieldCollectionPlace'] = refNames2find[post.get('fcp.' + index)]
+        elif fieldset == 'taxonomy':
+            updateItems['taxon'] = post.get('taxon.' + index)
+            updateItems['qualifier'] = post.get('qual.' + index)
+            updateItems['identKind'] = post.get('kind.' + index)
+            updateItems['identBy'] = post.get('ident_by.' + index)
+            updateItems['institution'] = post.get('tax_inst.' + index)
+            updateItems['identDate'] = post.get('date.' + index)
+            updateItems['notes'] = post.get('tax_notes.' + index)
         else:
             pass
             #error!
@@ -145,55 +159,82 @@ def do_update(post, fieldset, csids, refNames2find, config):
                 if post.get('fcp.' + index) == db.getCSIDDetail(config, index, 'fieldcollectionplace'):
                     pass
                 else:
-                    not_found[index] = not_found.get(index, []).append(('fcp', post.get('fcp.' + index)))
-            if updateItems['assocPeople'] == '' and post.get('cg.' + index):
+                    not_found['fcp'] = post.get('fcp.' + index)
+            if updateItems['assocPeople'] == '' and post.get('cult.' + index):
                 if post.get('cult.' + index) == db.getCSIDDetail(config, index, 'assocpeoplegroup'):
                     pass
                 else:
-                    not_found[index] = not_found.get(index, []).append(('cult', post.get('cult.' + index)))
+                    not_found['cult'] = post.get('cult.' + index)
             if updateItems['pahmaEthnographicFileCode'] == '' and post.get('efc.' + index):
-                not_found[index] = not_found.get(index, []).append(('efc', post.get('efc.' + index)))
+                not_found['efc'] = post.get('efc.' + index)
             if 'objectCount' in updateItems:
                 try:
                     int(updateItems['objectCount'])
                     int(updateItems['objectCount'][0])
                 except ValueError:
-                    not_found[index] = not_found.get(index, []).append(('count', post.get('count.' + index)))
+                    not_found['count'] = post.get('count.' + index)
                     del updateItems['objectCount']
         elif fieldset == 'registration':
             if updateItems['fieldCollector'] == '' and post.get('collector.' + index):
-                not_found[index] = not_found.get(index, []).append(('collector', post.get('collector.' + index)))
+                not_found['collector'] = post.get('collector.' + index)
         elif fieldset == 'hsrinfo':
             if updateItems['pahmaFieldCollectionPlace'] == '' and post.get('fcp.' + index):
                 if post.get('fcp.' + index) == db.getCSIDDetail(config, index, 'fieldcollectionplace'):
                     pass
                 else:
-                    not_found[index] = not_found.get(index, []).append(('fcp', post.get('fcp.' + index)))
+                    not_found['fcp'] = post.get('fcp.' + index)
             if 'objectCount' in updateItems:
                 try:
                     int(updateItems['objectCount'])
                     int(updateItems['objectCount'][0])
                 except ValueError:
-                    not_found[index] = not_found.get(index, []).append(('count', post.get('count.' + index)))
+                    not_found['count'] = post.get('count.' + index)
                     del updateItems['objectCount']
         elif fieldset == 'objtypecm':
             if updateItems['pahmaFieldCollectionPlace'] == '' and post.get('fcp.' + index):
                 if post.get('fcp.' + index) == db.getCSIDDetail(config, index, 'fieldcollectionplace'):
                     pass
                 else:
-                    not_found[index] = not_found.get(index, []).append(('fcp', post.get('fcp.' + index)))
+                    not_found['fcp'] = post.get('fcp.' + index)
             if 'objectCount' in updateItems:
                 try:
                     int(updateItems['objectCount'])
                     int(updateItems['objectCount'][0])
                 except ValueError:
-                    not_found[index] = not_found.get(index, []).append(('count', post.get('count.' + index)))
+                    not_found['count'] = post.get('count.' + index)
                     del updateItems['objectCount']
+            elif fieldset == 'taxonomy':
+                if updateItems['taxon'] == '' and post.get('taxon.' + index):
+                    if post.get('taxon.' + index) == db.getCSIDDetail(config, index, 'taxon'):
+                        pass
+                    else:
+                        not_found['taxon'] = post.get('taxon.' + index)
+                if updateItems['identBy'] == '' and post.get('ident_by.' + index):
+                    if post.get('ident_by.' + index) == db.getCSIDDetail(config, index, 'person'):
+                        pass
+                    else:
+                        not_found['ident_by'] = post.get('ident_by.' + index)
+                if updateItems['institution'] == '' and post.get('tax_inst.' + index):
+                    if post.get('organization.' + index) == db.getCSIDDetail(config, index, 'organization'):
+                        pass
+                    else:
+                        not_found['institution'] = post.get('organization.' + index)
+                if 'objectCount' in updateItems:
+                    try:
+                        int(updateItems['objectCount'])
+                        int(updateItems['objectCount'][0])
+                    except ValueError:
+                        not_found['count'] = post.get('count.' + index)
+                        del updateItems['objectCount']
         try:
-            updateMsg = services.updateKeyInfo(fieldset, updateItems, config, post)
+            #payload = services.updateKeyInfo(fieldset, updateItems, config, user)
+            updateMsg = services.updateKeyInfo(fieldset, updateItems, config, user)
             if updateMsg:
-                not_found['index'] = not_found.get(index, []).append(('update', updateMsg))
+                not_found['update'] = updateMsg
             numUpdated += 1
+            temp_update[index] = updateItems
+            if not_found:
+                temp_nf[index] = not_found
         except:
             raise
-        return not_found
+    return numUpdated, temp_update, temp_nf

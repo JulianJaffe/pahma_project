@@ -9,13 +9,13 @@
 </tr>
 {% if fieldset == 'keyinfo' %}
   <tr>
-    <th>Field Collection Place</th><td class="zcell"><input class="xspan" type="text" size="60" name="fcp.user"></td>
+    <th>Field Collection Place</th><td class="zcell"><input class="xspan" type="text" size="60" name="fcp.user" source="postgres"></td>
   </tr>
   <tr>
-    <th>Cultural Group</th><td class="zcell"><input class="xspan" type="text" size="60" name="cult.user"></td>
+    <th>Cultural Group</th><td class="zcell"><input class="xspan" type="text" size="60" name="cult.user" source=postgres"></td>
   </tr>
   <tr>
-    <th>Ethnographic File Code</th><td class="zcell"><input class="xspan" type="text" size="60" name="efc.user"></td>
+    <th>Ethnographic File Code</th><td class="zcell"><input class="xspan" type="text" size="60" name="efc.user" source="postgres"></td>
   </tr>
 {% elif fieldSet == 'namedesc' %}
   <tr>
@@ -29,14 +29,14 @@
     <th>Alternate Number Types</th><td class="zcell">{% include 'altnum.html' with tag='user' %}</td>
   </tr>
   <tr>
-    <th>Field Collector (person)</th><td class="zcell"><input class="xspan" type="text" size="60" name="collector.user"></td>
+    <th>Field Collector (person)</th><td class="zcell"><input class="xspan" type="text" size="60" name="collector.user" source="postgres"></td>
   </tr>
 {% elif fieldSet == 'hsrinfo' %}
   <tr>
     <th>Count Note</th><td class="zcell"><input class="xspan" type="text" size="25" name="count_note.user"></td>
   </tr>
   <tr>
-    <th>Field Collection Place</th><td class="zcell"><input class="xspan" type="text" size="50" name="fcp.user"></td>
+    <th>Field Collection Place</th><td class="zcell"><input class="xspan" type="text" size="50" name="fcp.user" source="postgres"></td>
   </tr>
   <tr>
     <th>Brief Description</th><td class="zcell"><textarea cols="60" rows="4" name="desc.user"></textarea></td>
@@ -49,7 +49,7 @@
     <th>Collection Manager</th><td class="zcell">{% include 'collmans.html' with tag='user' %}</td>
   </tr>
   <tr>
-    <th>Field Collection Place</th><td><input class="xspan" type="text" size="60" name="fcp.user"></td>
+    <th>Field Collection Place</th><td><input class="xspan" type="text" size="60" name="fcp.user" source="postgres"></td>
   </tr>
 {% elif fieldset == 'taxonomy' %}
   <tr>

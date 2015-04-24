@@ -1,7 +1,6 @@
 import urllib2
 import time
 import sys
-import re
 import cspace_logging.logging
 from common import cspace
 
@@ -28,7 +27,7 @@ def updateKeyInfo(fieldset, updateItems, config, user):
 
     realm = config.get('connect', 'realm')
     hostname = config.get('connect', 'hostname')
-    username, password = user.username, user.password  # Password is a hash of the password
+    username, password = user.get_username(), user.cspace_password
 
     uri = 'collectionobjects'
     getItems = updateItems['objectCsid']
@@ -115,9 +114,6 @@ def updateKeyInfo(fieldset, updateItems, config, user):
             new_element.text = updateItems[relationType]
             metadata.insert(0,new_element)
             if entries:
-                for entry in entries:
-                    print "first loop"
-                    print '%s, %s<br>' % (entry.tag, entry.text)
                 entries.insert(0, new_element)
             else:
                 metadata.insert(0, new_element)
@@ -157,7 +153,8 @@ def updateKeyInfo(fieldset, updateItems, config, user):
 
     uri = 'collectionobjects' + '/' + updateItems['objectCsid']
     payload = '<?xml version="1.0" encoding="UTF-8"?>\n' + etree.tostring(root, encoding='utf-8')
-    (url, data, csid, elapsedtime) = cspace.postxml(realm, uri, hostname, 'https', '', username, password, payload, 'PUT')
+    (url, data, csid, elapsedtime) = cspace.postxml(realm, uri, hostname, 'https', '', username, password, payload,
+                                                    'PUT', endpoint='services')
     cspace_logging.logging.writeLog(updateItems, uri, 'PUT', username, config)
 
     return message

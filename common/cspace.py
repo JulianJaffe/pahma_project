@@ -92,7 +92,7 @@ def make_get_request(realm, uri, hostname, protocol, port, username, password):
     return result
 
 
-def postxml(realm, uri, hostname, protocol, port, username, password, payload, requestType):
+def postxml(realm, uri, hostname, protocol, port, username, password, payload, requestType, endpoint=''):
 
     if port == '':
         server = protocol + "://" + hostname
@@ -103,7 +103,10 @@ def postxml(realm, uri, hostname, protocol, port, username, password, payload, r
     authhandler = urllib2.HTTPBasicAuthHandler(passMgr)
     opener = urllib2.build_opener(authhandler)
     urllib2.install_opener(opener)
-    url = "%s/%s" % (server, uri)
+    if endpoint == 'services':
+        url = "%s/cspace-services/%s" % (server, uri)
+    else:
+        url = "%s/%s" % (server, uri)
 
     elapsedtime = time.time()
     request = urllib2.Request(url, payload, {'Content-Type': 'application/xml'})

@@ -21,7 +21,7 @@ connect_string = config.get('connect', 'connect_string')
 
 import sys, json, re
 import cgi
-import cgitb;
+import cgitb
 
 cgitb.enable()  # for troubleshooting
 import pgdb
@@ -50,24 +50,26 @@ def dbtransaction(q, elementID, connect_string):
         srchindex = 'location'
     elif srchindex in ['gr']:
         srchindex = 'group'
-    elif srchindex in ['cp']:
+    elif srchindex in ['cp', 'fcp']:
         srchindex = 'longplace'
     elif srchindex in ['ob']:
         srchindex = 'object'
     elif srchindex in ['pl']:
         srchindex = 'place'
-    elif srchindex in ['ta']:
+    elif srchindex in ['ta', 'taxon']:
         srchindex = 'taxon'
     elif srchindex in ['cx']:
         srchindex = 'concept2'
-    elif srchindex in ['fc']:
+    elif srchindex in ['fc', 'efc']:
         srchindex = 'concept'
     elif srchindex in ['px']:
         srchindex = 'longplace2'
-    elif srchindex in ['pe']:
+    elif srchindex in ['pe', 'collector']:
         srchindex = 'person'
     elif srchindex in ['na']:
         srchindex = 'name'
+    elif srchindex in ['institution']:
+        srchindex = 'organization'
     else:
         srchindex = 'concept'
 
@@ -102,6 +104,8 @@ def dbtransaction(q, elementID, connect_string):
             template = makeTemplate('persontermgroup', 'termname',"ilike '%%%s%%'")
         elif srchindex == 'name':
             template = makeTemplate('objectnamegroup', 'objectname',"ilike '%%%s%%'")
+        elif srchindex == 'organization':
+            template = makeTemplate('orgtermgroup', 'termdisplayname', "like '%s%%'")
 
         #sys.stderr.write('template %s' % template)
 

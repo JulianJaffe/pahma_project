@@ -26,9 +26,10 @@
 {% block content %}
   <div>
     <table>
-    {% for csid in csids %}
-        <tr><td>{{ csid }}</td></tr>
+    {% for csid, message in messages.items %}
+        <tr><td>{{ csid }}</td><td>{{ message }}</td></tr>
     {% endfor %}
+    <tr><td style="text-align:center" colspan="2"><a href="../inventory"><button>Return</button></a></td></tr>
     </table>
   </div>
 {% endblock %}

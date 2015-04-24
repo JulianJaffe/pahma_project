@@ -7,7 +7,7 @@ from os import path
 import inv
 
 
-# @login_required()
+@login_required()
 def inventory(request):
     context = {'title': 'Inventory'}
     fieldsets = getFieldsets()
@@ -122,7 +122,7 @@ def inventory(request):
     return render(request, 'inventory.html', context)
 
 
-# @login_required()
+@login_required()
 def update(request):
     context = {}
     if request.method == 'POST':
@@ -157,10 +157,22 @@ def update(request):
                 if 'csid.' in i:
                     csids.append(i[5:])
         context['csids'] = csids
-        '''refnames = inv.getRefNames(post, csids, fieldset, inv_type, config)
-        not_found = inv.do_update(post, fieldset, csids, refnames, config)
-        if not_found:
-            context['not_found'] = not_found
-        context['not_found'] = not_found'''
+        inv_type = post.get('inv_type', 'inv_ind')
+        refnames = inv.getRefNames(post, csids, fieldset, inv_type, config)
+        context['refnames'] = refnames
+        num_updated, update_items, not_found = inv.do_update(post, fieldset, csids, refnames, inv_type, request.user,
+                                                             config)
+        messages = {}
+        for csid in csids:
+            obj_no = db.getCSIDDetail(config, csid, 'objNumber')
+            if csid in not_found.keys():
+                messages[csid] = "%s Error:" % obj_no
+                for key in not_found[csid]:
+                    messages[csid] += '<span style="color: red"> %s %s not found, %s not updated!</span>' % \
+                                      (inv.TAG_DICT[key], not_found[csid][key], inv.TAG_DICT[key])
+            else:
+                messages[csid] = "%s updated successfully." % obj_no
+        context['messages'] = messages
+        context['num_updated'] = num_updated
 
     return render(request, 'update.html', context)

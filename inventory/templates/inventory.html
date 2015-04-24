@@ -76,12 +76,12 @@
                 <!-- {{ start }}, {{ end }}-->
                     <td colspan="2">
                         <label for="range_start"> Start:&nbsp;
-                            <input type="text" class="cell" name="range_start" id="range_start" required{% if start %} value="{{ start }}"{% endif %}>
+                            <input type="text" class="cell" name="range_start" id="range_start" source="postgres" required{% if start %} value="{{ start }}"{% endif %}>
                         </label>
                     </td>
                     <td colspan="2">
                         <label for="range_end"> End:&nbsp;
-                            <input type="text" class="cell" name="range_end" id="range_end"{% if end %} value="{{ end }}"{% endif %}>
+                            <input type="text" class="cell" name="range_end" id="range_end" source="postgres"{% if end %} value="{{ end }}"{% endif %}>
                         </label>
                     </td>
                     <td colspan="2">
