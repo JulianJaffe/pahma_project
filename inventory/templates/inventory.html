@@ -34,7 +34,7 @@
                     </td>
                     <td>
                         <label for="by_location">
-                            <input type="radio" name="by_parameter" id="by_location" value="by_location" required {% if inv_parameter == 'by_location' %}checked="checked"{% endif %}>
+                            <input type="radio" name="by_parameter" id="by_location" value="by_location" required {% if inv_parameter != 'by_mus_no' %}checked="checked"{% endif %}>
                             &nbsp;By Location
                         </label>
                     </td>
@@ -56,7 +56,7 @@
                     </td>
                     <td>
                         <label for="inv_ind">
-                            <input type="radio" name="inventory_type" id="inv_ind" value="inv_ind" required {% if inv_type == 'inv_ind' %}checked="checked"{% endif %}>
+                            <input type="radio" name="inventory_type" id="inv_ind" value="inv_ind" required {% if inv_type != 'inv_bulk' %}checked="checked"{% endif %}>
                             &nbsp;Individual
                         </label>
                     </td>

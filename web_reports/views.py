@@ -10,6 +10,7 @@ from os import path
 from cspace_django_site import settings
 import concept_dict_builder as concept
 import re
+import time
 
 
 # @login_required()
@@ -18,12 +19,14 @@ def list_apps(request):
     context = {'title': 'Web Reports', 'reports': [['Government Holdings', 'government_holdings'],
                                                    ['Hierarchy Viewer', 'hierarchy_viewer'],
                                                    ['Packing List', 'packing_list']]}
+    context['timestamp'] = time.strftime("%b %d %Y %H:%M:%S", time.localtime())
     return render(request, 'list.html', context)
 
 
 # @login_required()
 def hierarchy_viewer(request):
     context = {'title': 'Hierarchy Viewer'}
+    context['timestamp'] = time.strftime("%b %d %Y %H:%M:%S", time.localtime())
     hierarchies = getHierarchies()
     context['hierarchies'] = hierarchies
     if "hierarchy" in request.GET:
@@ -33,6 +36,8 @@ def hierarchy_viewer(request):
         context['selected_hierarchy'] = hierarchy
         config_file_name = 'HierarchyViewerProd' # Currently hard-coded Dev
         config = cspace.getConfig(path.dirname(path.abspath(__file__)), config_file_name)
+        version = config.get('info', 'version')
+        context['version'] = version
         res = db.gethierarchy(hierarchy, config)
         lookup = {concept.PARENT: concept.PARENT}
         hostname = config.get('connect', 'hostname')
@@ -61,6 +66,7 @@ def hierarchy_viewer(request):
 # @login_required()
 def government_holdings(request):
     context = {'title': 'Government Holdings'}
+    context['timestamp'] = time.strftime("%b %d %Y %H:%M:%S", time.localtime())
     agencies = getAgencies()
     short_agencies = [agency[0] for agency in agencies]
     opt_agencies = [ag.replace(" ", "") for ag in short_agencies]
@@ -71,6 +77,8 @@ def government_holdings(request):
             return render(request, 'government_holdings.html', context)
         config_file_name = 'GovernmentHoldingsDev' # Currently hard-coded Dev
         config = cspace.getConfig(path.dirname(path.abspath(__file__)), config_file_name)
+        version = config.get('info', 'version')
+        context['version'] = version
         context['selected_agency'] = agency
         pretty_agency = [ag[1] for ag in zip(opt_agencies, short_agencies) if ag[0] == agency][0]
         refname = [ag[1] for ag in agencies if ag[0] == pretty_agency][0]

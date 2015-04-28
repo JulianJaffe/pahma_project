@@ -4,6 +4,7 @@ from common.constants import getFieldsets, invHeaders, getAltNumTypes, getCollMa
 from connector import db
 from common import cspace
 from os import path
+import time
 import inv
 
 
@@ -12,6 +13,7 @@ def inventory(request):
     context = {'title': 'Inventory'}
     fieldsets = getFieldsets()
     context['fieldsets'] = fieldsets
+    context['timestamp'] = time.strftime("%b %d %Y %H:%M:%S", time.localtime())
     if request.method == 'POST':
         post = request.POST
         if 'fieldset' in post:
@@ -23,6 +25,8 @@ def inventory(request):
         context['searched'] = True
         config_file_name = 'InventoryDev'  # Currently hard-coded Dev
         config = cspace.getConfig(path.dirname(path.abspath(__file__)), config_file_name)
+        version = config.get('info', 'version')
+        context['version'] = version
         updateType = config.get('info', 'updatetype')
         institution = config.get('info', 'institution')
         protocol = config.get('connect', 'protocol')
@@ -125,6 +129,7 @@ def inventory(request):
 @login_required()
 def update(request):
     context = {}
+    context['timestamp'] = time.strftime("%b %d %Y %H:%M:%S", time.localtime())
     if request.method == 'POST':
         post = request.POST
         if 'fieldset' in post:
@@ -135,6 +140,8 @@ def update(request):
             return render(request, 'inventory.html', context)
         config_file_name = 'InventoryDev'  # Currently hard-coded Dev
         config = cspace.getConfig(path.dirname(path.abspath(__file__)), config_file_name)
+        version = config.get('info', 'version')
+        context['version'] = version
         updateType = config.get('info', 'updatetype')
         institution = config.get('info', 'institution')
         csids = []
