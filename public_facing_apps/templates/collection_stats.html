@@ -1,0 +1,146 @@
+{% load staticfiles %}
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>{{ title }}</title>
+    <style type="text/css">
+    body { margin:10px 10px 0px 10px; font-family: Arial, Helvetica, sans-serif; }
+    table { width: 100%; }
+    td { cell-padding: 3px; }
+    .stattitle { font-weight: normal; text-align:right; }
+    .statvalue { font-weight: bold; text-align:left; }
+    .statvaluecenter { font-weight: bold; text-align:center; }
+    th { text-align: left ;color: #666666; font-size: 16px; font-weight: bold; cell-padding: 3px;}
+    h1 { font-size:32px; float:left; padding:10px; margin:0px; border-bottom: none; }
+    h2 { font-size:12px; float:left; color:white; background:black; }
+    p { padding:10px 10px 10px 10px; }
+
+    button { font-size: 150%; width:85px; text-align: center; text-transform: uppercase;}
+
+    .statsection { font-size:21px; font-weight:bold; border-bottom: thin dotted #aaaaaa; color: #660000; }
+    .statheader { font-weight: bold; text-align:center; font-size:medium; }
+    .stattitle { font-weight: bold; text-align:right; font-size:small; }
+    .statvalue { font-weight: normal; text-align:left; font-size:x-small; }
+    .statbignumber { font-weight: bold; text-align:center; font-size:medium; }
+    .statnumber { font-weight: bold; text-align:right; font-size:x-small; }
+    .statpct { font-weight: normal; text-align:left; font-size:x-small; }
+    .objtitle { font-size:28px; float:left; padding:2px; margin:0px; border-bottom: thin dotted #aaaaaa; color: #000000; }
+    .objsubtitle { font-size:28px; float:left; padding:2px; margin:0px; border-bottom: thin dotted #aaaaaa; font-style: italic; color: #999999; }
+    .notentered { font-style: italic; color: #999999; }
+    .askjohn { font-style: italic; color: #009999; }
+
+    .addtoquery { font-style: italic; color: #aa0000; }
+    .cell { line-height: 1.0; text-indent: 2px; color: #666666; font-size: 16px;}
+    .enumerate { background-color: green; font-size:20px; color: #FFFFFF; font-weight:bold; vertical-align: middle; text-align: center; }
+    img#logo { float:left; height:50px; padding:10px 10px 10px 10px;}
+    .locations { color: #000000; background-color: #FFFFFF; font-weight: bold; font-size: 18px; }
+    .ncell { line-height: 1.0; cell-padding: 2px; font-size: 16px;}
+    .error {color:red;}
+    .rdo { text-align: center; }
+    .save { background-color: BurlyWood; font-size:20px; color: #000000; font-weight:bold; vertical-align: middle; text-align: center; }
+    .dashboardcell { width:265px; height:190px;
+    -moz-border-radius:9px; border-radius:9px;
+    border:2px solid black; position:relative;
+    display:inline-block; margin:13px; padding:5px;
+    cursor: pointer;}
+    .dashboardpane { position:fixed; top:1px;
+    left:1px; right:1px; bottom:1px;overflow:hidden;
+    -moz-border-radius:9px; border-radius:9px;
+    border:2px solid black; text-align:left;
+    background:#CCC; display:none; padding:8px;
+    background:rgba(0,0,0,0.2);}
+    #overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:#000;
+    opacity:0.5; filter:alpha(opacity=50); display:none; overflow:hidden}
+    .content {border-radius:7px; background:#fff;
+    padding:20px; height:93%; overflow-y:auto;overflow-x:auto; position:relative;}
+    .table{display:none; background:#fff; float:left; margin-left:305px;}
+    .selection{height:150px; width:300px; float:left; background:#fff; position:fixed; cursor:pointer;}
+    .charts{float:left; background:#fff; margin-left:305px;}
+    .time{float:left; display:none; background:#fff; margin-left:305px;}
+    .close{float:right; margin-top:-12.5px; margin-right:-5.5px; z-index:25; position:absolute; right:0px}
+    .charts-menu-vertical { max-height: 300px; overflow-y: auto; z-index: 15;}
+    .useHead{ font-weight: bold; }
+    .useBody{ display: inline-block; padding-left: 3em; }
+    </style>
+
+    <link rel="stylesheet" type="text/css" href="{% static "cspace_django_site/css/smoothness/jquery-ui-1.10.3.custom.min.css" %}"/>
+    <script type="text/javascript" src="{% static "cspace_django_site/js/jquery-1.10.0.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "cspace_django_site/js/jquery-ui-1.10.3.custom.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "public_facing_apps/js/provision.js" %}"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="{% static "public_facing_apps/js/collection_stats.js" %}"></script>
+    <style>
+    .ui-autocomplete-loading { background: white url('{% static "public_facing_apps/images/ui-anim_basic_16x16.gif" %}') right center no-repeat; }
+    </style>
+</head>
+<body>
+<form id="sysinv" enctype="multipart/form-data" method="post">
+<table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tbody><tr><td width="3%">&nbsp;</td><td align="center">{{ divsize|safe }}
+    <table width="100%">
+    <tbody>
+      <tr>
+	<td style="width: 400px; color: #000000; font-size: 32px; font-weight: bold;">{{ title }}</td>
+        <td><span style="color:{{ serverlabelcolor }}">{{ serverlabel }}</span></td>
+	<th style="text-align:right;"><img height="60px" src="{{ logo }}"></th>
+      </tr>
+      <tr><td colspan="3"></td></tr>
+      <tr>
+	<td colspan="3">
+	<table>
+	  <tr><td><table>
+	</table>
+        </td><td style="width:3%"/>
+	<td style="width:120px;text-align:center;"></td>
+      </tr>
+      </table></td></tr>
+      <tr><td colspan="3"><div id="status"><hr/></div></td></tr>
+    </tbody>
+    </table>
+    <div>
+    <span style="font-size:20px;"><b>{{ total.0 }}</b> Total Museum Numbers &bull; <b>{{ total.1 }}</b> Total Objects &bull; <b>{{ total.2 }}</b> Total Pieces</span><br>
+    <span style="font-size:16px; font-style:italic">All counts accurate as of {{ total.3 }}</span><br></div>
+
+<div id='overlay'></div>
+  <div style="text-align:center;">
+
+    {% for code in codes %}
+    <div class="dashboardcell" id="{{ code.code }}">
+        <img src="{% static "" %}public_facing_apps/images/{{ code.code }}.png" alt="{% if code.code != "total" %}By{% endif %} {{ code.long }}" id="{{ code.code }}img">
+    </div>
+    {% endfor %}
+  </div>
+
+    {% for code in codes %}
+        <div class="dashboardpane" id="{{ code.code }}spane">
+        <div class="close" id="{{ code.code }}close">
+            <img src="{% static "public_facing_apps/images/x.png" %}" alt="close">
+        </div>
+        <div class="content">
+
+        {% include "selection.html" with code=code %}
+        {{ code.chart|safe }}
+        {{ code.table|safe }}
+        {{ code.time|safe }}
+    {% endfor %}
+
+    </div>
+</div>
+<div>
+    <table width="100%">
+    <tbody>
+    <tr>
+      <td width="180px" class="xspan">{{ timestamp }}</td>
+      <td width="120px" class="cell">elapsed time: </td>
+      <td class="xspan">{{ elapsedtime }} seconds</td>
+      <td style="text-align: right;" class="cell">powered by </td>
+      <td style="text-align: right;width: 170;" class="cell"><img src="https://dev.cspace.berkeley.edu/images/header-logo-cspace.png" height="30px"></td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+</td><td width="2%">&nbsp;</td></tr>
+</tbody></table>
+</form>
+</body>
+</html>

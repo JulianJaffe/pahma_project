@@ -3,29 +3,30 @@
 
 {% block extrastyle %}
     <link rel="stylesheet" type="text/css" href="{% static "cspace_django_site/css/smoothness/jquery-ui-1.10.3.custom.min.css" %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static "info_review/css/info_review.css" %}"/>
 {% endblock %}
 
 {% block scripts %}
     <script type="text/javascript" src="{% static "cspace_django_site/js/jquery-1.10.0.min.js" %}"></script>
     <script type="text/javascript" src="{% static "cspace_django_site/js/jquery-ui-1.10.3.custom.min.js" %}"></script>
-    <script type="text/javascript" src="{% static "inventory/js/Inventory.js" %}"></script>
+    <script type="text/javascript" src="{% static "info_review/js/Info_review.js" %}"></script>
 {% endblock %}
 
 {% block loginBtn %}
 <div id="user-tools">
-    <a href="{% url 'login' %}?next=/pahma_project/inventory/" id="login" class="prettyBtn">{% trans 'Sign in' %}</a>
+    <a href="{% url 'login' %}?next=/pahma_project/info_review/" id="login" class="prettyBtn">{% trans 'Sign in' %}</a>
 </div>
 {% endblock %}
 
 {% block branding %}
     <h4 class="bannerLeft"></h4>
-    <h4 class="bannerRight"></h4>
+    <h4 class="bannerRight"><span style="color: {% if server == 'Prod' %}red{% else %}green{% endif %}">{{ server }}</span></h4>
     <h1 class="bannerTitle" id="site-name">{{ title }}</h1>
 {% endblock %}
 
 {% block content %}
     <div id="content-main">
-        <form name="inventory_selector" method="post">
+        <form name="info_review_selector" method="post">
         {% csrf_token %}
             <table width="100%">
                 <tr>
@@ -73,15 +74,14 @@
                     </td>
                 </tr>
                 <tr>
-                <!-- {{ start }}, {{ end }}-->
                     <td colspan="2">
                         <label for="range_start"> Start:&nbsp;
-                            <input type="text" class="cell" name="range_start" id="range_start" source="postgres" required{% if start %} value="{{ start }}"{% endif %}>
+                            <input type="text" class="cell" name="{% if inv_parameter == 'by_mus_no' %}ob.objno1{% else %}lo.location1{% endif %}" id="range_start" source="postgres" required{% if start %} value="{{ start }}"{% endif %}>
                         </label>
                     </td>
                     <td colspan="2">
                         <label for="range_end"> End:&nbsp;
-                            <input type="text" class="cell" name="range_end" id="range_end" source="postgres"{% if end %} value="{{ end }}"{% endif %}>
+                            <input type="text" class="cell" name="{% if inv_parameter == 'by_mus_no' %}ob.objno2{% else %}lo.location2{% endif %}" id="range_end" source="postgres"{% if end %} value="{{ end }}"{% endif %}>
                         </label>
                     </td>
                     <td colspan="2">
@@ -107,9 +107,9 @@
     </div>
     <div id="inventory_results">
         {% if error %}
-            {% include 'inv_error.html' %}
+            {% include 'info_review_error.html' %}
         {% elif searched %}
-            <form method="post" action="/pahma_project/inventory/update">
+            <form method="post" action="/pahma_project/info_review/update">
             {% csrf_token %}
               <input type="hidden" name="fieldset" value="{{ fieldset }}">
               <table>
@@ -126,13 +126,13 @@
                 {% if inv_parameter == 'by_location' %}
                     {% for location, data in locs %}
                         <tr><td colspan="7" class="subheader">{{ location }}</td></tr>
-                        {% include 'individual_inventory.html' with totalobjects=data|length %}
+                        {% include 'individual_info_review.html' with totalobjects=data|length %}
                     {% endfor %}
                 {% elif inv_parameter == 'by_mus_no' %}
-                    {% include 'individual_inventory.html' %}
+                    {% include 'individual_info_review.html' %}
                 {% endif %}
             {%  elif inv_type == 'inv_bulk' %}
-                {% include 'bulk_inventory.html' %}
+                {% include 'bulk_info_review.html' %}
             {% endif %}
                 <tr><td colspan="10" style="text-align: center"><input name="update" class="save" type="submit" value="Submit"></td></tr>
               </table>

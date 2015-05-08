@@ -9,11 +9,13 @@ import inv
 
 
 @login_required()
-def inventory(request):
-    context = {'title': 'Inventory'}
+def info_review(request):
+    context = {'title': 'Information Review'}
     fieldsets = getFieldsets()
     context['fieldsets'] = fieldsets
     context['timestamp'] = time.strftime("%b %d %Y %H:%M:%S", time.localtime())
+    server = 'Dev'  # Currently hard-coded
+    context['server'] = server
     if request.method == 'POST':
         post = request.POST
         if 'fieldset' in post:
@@ -21,10 +23,10 @@ def inventory(request):
             context['fieldset'] = fieldset
         else:
             context['error'] = 'Bad Field Set!'
-            return render(request, 'inventory.html', context)
+            return render(request, 'info_review.html', context)
         context['searched'] = True
-        config_file_name = 'InventoryDev'  # Currently hard-coded Dev
-        config = cspace.getConfig(path.dirname(path.abspath(__file__)), config_file_name)
+        config_file_name = 'InfoReview'
+        config = cspace.getConfig(path.dirname(path.abspath(__file__)), config_file_name + server)
         version = config.get('info', 'version')
         context['version'] = version
         updateType = config.get('info', 'updatetype')
@@ -46,7 +48,7 @@ def inventory(request):
         inv_type = post['inventory_type'] if 'inventory_type' in post else 'inv_ind'
         if inv_type not in ['inv_ind', 'inv_bulk']:
             context['error'] = 'Bad Inventory Type!'
-            return render(request, 'inventory.html', context)
+            return render(request, 'info_review.html', context)
         context['inv_type'] = inv_type
         if inv_type == 'inv_bulk':
             try:
@@ -61,15 +63,15 @@ def inventory(request):
                     end = post['range_end'] if 'range_end' in post else start
             context['start'] = start
             context['end'] = end
-            return render(request, 'inventory.html', context)
+            return render(request, 'info_review.html', context)
         if inv_parameter == 'by_location':
             #  TODO: Sanitize input to avoid SQLi
             try:
                 loc1 = post['lo.location1']
-                loc2 = post['lo.location2'] if 'lo.location2' in post else loc1
+                loc2 = post['lo.location2'] if ('lo.location2' in post and post['lo.location2']) else loc1
             except KeyError:
                 loc1 = post['range_start']
-                loc2 = post['range_end'] if 'range_end' in post else loc1
+                loc2 = post['range_end'] if ('range_end' in post and post['range_end']) else loc1
             context['start'] = loc1
             context['end'] = loc2
             locs = db.getloclist('range', loc1, loc2, 1000, config)
@@ -105,10 +107,10 @@ def inventory(request):
             #  Todo: Sanitize input to avoid SQLi
             try:
                 obj1 = post['ob.objno1']
-                obj2 = post['ob.objno2'] if 'ob.objno2' in post else obj1
+                obj2 = post['ob.objno2'] if ('ob.objno2' in post and post['ob.objno2']) else obj1
             except KeyError:
                 obj1 = post['range_start']
-                obj2 = post['range_end'] if 'range_end' in post else obj1
+                obj2 = post['range_end'] if ('range_end' in post and post['range_end']) else obj1
             context['start'] = obj1
             context['end'] = obj2
             objs = db.getobjlist('range', obj1, obj2, 3000, config)
@@ -122,14 +124,16 @@ def inventory(request):
             context['totalobjects'] = totalobjects
         else:
             context['error'] = 'Bad Parameter!'
-            return render(request, 'inventory.html', context)
-    return render(request, 'inventory.html', context)
+            return render(request, 'info_review.html', context)
+    return render(request, 'info_review.html', context)
 
 
 @login_required()
 def update(request):
     context = {}
     context['timestamp'] = time.strftime("%b %d %Y %H:%M:%S", time.localtime())
+    server = 'Dev'  # Currently hard-coded
+    context['server'] = server
     if request.method == 'POST':
         post = request.POST
         if 'fieldset' in post:
@@ -137,9 +141,9 @@ def update(request):
             context['fieldset'] = fieldset
         else:
             context['error'] = 'Bad Field Set!'
-            return render(request, 'inventory.html', context)
-        config_file_name = 'InventoryDev'  # Currently hard-coded Dev
-        config = cspace.getConfig(path.dirname(path.abspath(__file__)), config_file_name)
+            return render(request, 'info_review.html', context)
+        config_file_name = 'InfoReview'
+        config = cspace.getConfig(path.dirname(path.abspath(__file__)), config_file_name + server)
         version = config.get('info', 'version')
         context['version'] = version
         updateType = config.get('info', 'updatetype')

@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
-from inventory import views
+from info_review import views
 
 urlpatterns = patterns('',
-                       url(r'^/?$', views.inventory, name='inventory'),
+                       url(r'^/?$', views.info_review, name='info_review'),
                        url(r'^update/?$', views.update, name='update'),
                        )

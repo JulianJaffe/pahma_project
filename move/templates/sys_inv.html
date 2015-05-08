@@ -1,0 +1,130 @@
+{% extends "cspace_django_site/base_site.html" %}
+{% load i18n admin_static %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" type="text/css" href="{% static "cspace_django_site/css/smoothness/jquery-ui-1.10.3.custom.min.css" %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static "move/css/move.css" %}"/>
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript" src="{% static "cspace_django_site/js/jquery-1.10.0.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "cspace_django_site/js/jquery-ui-1.10.3.custom.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "move/js/move.js" %}"></script>
+{% endblock %}
+
+{% block loginBtn %}
+<div id="user-tools">
+    <a href="{% url 'login' %}?next=/pahma_project/move/" id="login" class="prettyBtn">{% trans 'Sign in' %}</a>
+</div>
+{% endblock %}
+
+{% block branding %}
+    <h4 class="bannerLeft"></h4>
+    <h4 class="bannerRight"><span style="color: {% if server == 'Prod' %}red{% else %}green{% endif %}">{{ server }}</span></h4>
+    <h1 class="bannerTitle" id="site-name">{{ title }}</h1>
+{% endblock %}
+
+{% block content %}
+    <div id="content-main">
+        <form name="sys_inv_selector" method="post">
+        {% csrf_token %}
+            <table width="100%">
+                <tr>
+                    <td>
+                        <label for="range_start"> Start Location:&nbsp;</label>
+                    </td>
+                    <td>
+                        <input type="text" class="cell" name="lo.location1" id="range_start" size="40" source="postgres" required{% if start %} value="{{ start }}"{% endif %}>
+                    </td>
+                    <td>
+                        <label for="range_end"> End Location:&nbsp;</label>
+                    </td>
+                    <td>
+                        <input type="text" class="cell" name="lo.location2" id="range_end" size="40" source="postgres"{% if end %} value="{{ end }}"{% endif %}>
+                    </td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="reason">Reason:&nbsp;</label>
+                    </td>
+                    <td>
+                        <select name="reason" id="reason">
+                            {% for r in reasons %}
+                                {% if r.1 == reason %}
+                                    <option value="{{ r.1 }}" selected>{{ r.0 }}</option>
+                                {%  else %}
+                                    <option value="{{ r.1 }}">{{ r.0 }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <label for="handler">Handler:&nbsp;</label>
+                    </td>
+                    <td>
+                        <select name="handler" id="handler">
+                        <option value="None">Select a handler</option>
+                            {% for h in handlers %}
+                                {% if h.1 == handler %}
+                                    <option value="{{ h.1 }}" selected>{{ h.0 }}</option>
+                                {%  else %}
+                                    <option value="{{ h.1 }}">{{ h.0 }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <input name="search" class="save" type="submit" value="Search">
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+    <div id="sys_inv_results">
+        {% if error %}
+            {% include 'sys_inv_error.html' %}
+        {% elif searched %}
+            <form method="post" action="/pahma_project/move/sys_inv/update">
+            {% csrf_token %}
+              <input type="hidden" name="reason" value="{{ reason }}">
+              <input type="hidden" name="handler" value="{{ handler }}">
+              <input type="hidden" name="lo.location1" value="{{ start }}">
+              <input type="hidden" name="lo.location2" value="{{ end }}">
+              <table>
+                <tr>
+                  <th>Museum #</th>
+                  <th>Object name</th>
+                  <th>Found</th>
+                  <th style="width:60px; text-align:center;">Not Found</th>
+                  <th>Notes</th>
+                </tr>
+                <tr>
+                    <td colspan="6">{{ locs.0.0 }}</td>
+                </tr>
+                {% for data in locs.0.1 %}
+                  <tr>
+                    <td><a target="cspace" href="{{ data.link }}">{{ data.obj_no }}</a></td><td>{{ data.name }}</td>
+                    <td><input type="radio" name="r.{{ data.obj_no }}" value="found|{{ data.csid }}|{{ data.refname }}|{{ data.movement_csid }}|{{ data.obj_no }}|" checked></td>
+                    <td><input type="radio" name="r.{{ data.obj_no }}" value="not found|{{ data.csid }}|{{ data.refname }}|{{ data.movement_csid }}|{{ data.obj_no }}|"></td>
+                    <td><input class="xspan" type="text" size="65" name="n.{{ data.obj_no }}"></td>
+                  </tr>
+                {% endfor %}
+                <tr><td colspan="10" style="text-align: center"><input name="update" class="save" type="submit" value="Submit"></td></tr>
+              </table>
+            </form>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block footer %}
+  <table width="100%">
+    <tbody>
+    <tr>
+      <td style="vertical-align: middle">Current time: {{ timestamp }}. This is version {{ version }}</td>
+      <td style="vertical-align: middle;width: 70px;">powered by </td>
+      <td style="text-align: right; width: 160px;"><img src="{% static "cspace_django_site/images/header-logo-cspace.png" %}" height="30px"></td>
+    </tr>
+    </tbody>
+  </table>
+{% endblock %}

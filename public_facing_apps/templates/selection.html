@@ -1,0 +1,8 @@
+{% load static %}
+
+<div class="selection">
+ <img src="{% static "" %}public_facing_apps/images/{{ code.chartsrc }}.png" alt="{{ code.chart_alt }}" id="{{ code.code }}chartsel" class="selimg"><br>
+ <img src="{% static "" %}public_facing_apps/images/{{ code.timesrc }}.png" alt="{{ code.time_alt }}" id="{{ code.code }}timesel" class="selimg"><br>
+ <img src="{% static "" %}public_facing_apps/images/{{ code.tablesrc }}.png" alt="{{ code.table_alt }}" id="{{ code.code }}tablesel" class="selimg"><br>
+ <img src="{% static "" %}public_facing_apps/images/backtomain.png" alt="Close" id="{{ code.code }}closesel" class="selimg">
+</div>

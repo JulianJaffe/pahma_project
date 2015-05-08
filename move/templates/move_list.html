@@ -2,12 +2,12 @@
 {% load i18n admin_static %}
 
 {% block extrastyle %}
-    <link rel="stylesheet" type="text/css" href="{% static "web_reports/css/web_reports.css" %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static "public_facing_apps/css/pfa.css" %}"/>
 {% endblock %}
 
 {% block loginBtn %}
 <div id="user-tools">
-    <a href="{% url 'login' %}?next=/pahma_project/web_reports/list/" id="login" class="prettyBtn">{% trans 'Sign in' %}</a>
+    <a href="{% url 'login' %}?next=/pahma_project/move/list/" id="login" class="prettyBtn">{% trans 'Sign in' %}</a>
 </div>
 {% endblock %}
 
@@ -21,9 +21,9 @@
     <div id="content-main">
         <table>
             <tr>
-                <th scope="row">Reports</th>
+                <th scope="row">Web Apps</th>
             </tr>
-                {% for name, url in reports %}
+                {% for name, url in webapps %}
                 <tr>
                     <td><a href="{{ url }}">{{ name }}</a></td>
                 </tr>

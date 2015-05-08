@@ -161,7 +161,8 @@ INSTALLED_APPS = (
     'uploadmedia',
     'locviewer',
     'web_reports',
-    'inventory'
+    'info_review',
+    'move',
 )
 
 # A sample logging configuration. The only tangible logging

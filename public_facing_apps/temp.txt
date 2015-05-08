@@ -1,0 +1,288 @@
+def printCollectionStats(form, config):
+    writeInfo2log('start', form, config, 0.0)
+    logo = config.get('info', 'logo')
+    schemacolor1 = config.get('info', 'schemacolor1')
+    serverlabel = config.get('info', 'serverlabel')
+    serverlabelcolor = config.get('info', 'serverlabelcolor')
+    apptitle = config.get('info', 'apptitle')
+    updateType = config.get('info', 'updatetype')
+
+    divsize = '''<div id="sidiv" style="position:relative; width:1300px; height:750px; color:black; ">'''
+
+    print '''Content-type: text/html; charset=utf-8
+
+
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>''' + apptitle + ' : ' + serverlabel + '''</title>
+<style type="text/css">
+body { margin:10px 10px 0px 10px; font-family: Arial, Helvetica, sans-serif; }
+table { width: 100%; }
+td { cell-padding: 3px; }
+.stattitle { font-weight: normal; text-align:right; }
+.statvalue { font-weight: bold; text-align:left; }
+.statvaluecenter { font-weight: bold; text-align:center; }
+th { text-align: left ;color: #666666; font-size: 16px; font-weight: bold; cell-padding: 3px;}
+h1 { font-size:32px; float:left; padding:10px; margin:0px; border-bottom: none; }
+h2 { font-size:12px; float:left; color:white; background:black; }
+p { padding:10px 10px 10px 10px; }
+
+button { font-size: 150%; width:85px; text-align: center; text-transform: uppercase;}
+
+.statsection { font-size:21px; font-weight:bold; border-bottom: thin dotted #aaaaaa; color: #660000; }
+.statheader { font-weight: bold; text-align:center; font-size:medium; }
+.stattitle { font-weight: bold; text-align:right; font-size:small; }
+.statvalue { font-weight: normal; text-align:left; font-size:x-small; }
+.statbignumber { font-weight: bold; text-align:center; font-size:medium; }
+.statnumber { font-weight: bold; text-align:right; font-size:x-small; }
+.statpct { font-weight: normal; text-align:left; font-size:x-small; }
+.objtitle { font-size:28px; float:left; padding:2px; margin:0px; border-bottom: thin dotted #aaaaaa; color: #000000; }
+.objsubtitle { font-size:28px; float:left; padding:2px; margin:0px; border-bottom: thin dotted #aaaaaa; font-style: italic; color: #999999; }
+.notentered { font-style: italic; color: #999999; }
+.askjohn { font-style: italic; color: #009999; }
+
+.addtoquery { font-style: italic; color: #aa0000; }
+.cell { line-height: 1.0; text-indent: 2px; color: #666666; font-size: 16px;}
+.enumerate { background-color: green; font-size:20px; color: #FFFFFF; font-weight:bold; vertical-align: middle; text-align: center; }
+img#logo { float:left; height:50px; padding:10px 10px 10px 10px;}
+.locations { color: #000000; background-color: #FFFFFF; font-weight: bold; font-size: 18px; }
+.ncell { line-height: 1.0; cell-padding: 2px; font-size: 16px;}
+.error {color:red;}
+.rdo { text-align: center; }
+.save { background-color: BurlyWood; font-size:20px; color: #000000; font-weight:bold; vertical-align: middle; text-align: center; }
+.dashboardcell { width:265px; height:190px;
+-moz-border-radius:9px; border-radius:9px;
+border:2px solid black; position:relative;
+display:inline-block; margin:13px; padding:5px;
+cursor: pointer;}
+.dashboardpane { position:fixed; top:1px;
+left:1px; right:1px; bottom:1px;overflow:hidden;
+-moz-border-radius:9px; border-radius:9px;
+border:2px solid black; text-align:left;
+background:#CCC; display:none; padding:8px;
+background:rgba(0,0,0,0.2);}
+#overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:#000;
+opacity:0.5; filter:alpha(opacity=50); display:none; overflow:hidden}
+.content {border-radius:7px; background:#fff;
+padding:20px; height:93%; overflow-y:auto;overflow-x:auto; position:relative;}
+.table{display:none; background:#fff; float:left; margin-left:305px;}
+.selection{height:150px; width:300px; float:left; background:#fff; position:fixed; cursor:pointer;}
+.charts{float:left; background:#fff; margin-left:305px;}
+.time{float:left; display:none; background:#fff; margin-left:305px;}
+.close{float:right; margin-top:-12.5px; margin-right:-5.5px; z-index:25; position:absolute; right:0px}
+.charts-menu-vertical { max-height: 300px; overflow-y: auto; z-index: 15;}
+.useHead{ font-weight: bold; }
+.useBody{ display: inline-block; padding-left: 3em; }
+</style>
+
+<style type="text/css">
+  /*<![CDATA[*/
+    @import "../css/jquery-ui-1.8.22.custom.css";
+  /*]]>*/
+  </style>
+<script type="text/javascript" src="../js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="../js/jquery-ui-1.8.22.custom.min.js"></script>
+<script type="text/javascript" src="../js/provision.js"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<style>
+.ui-autocomplete-loading { background: white url('../images/ui-anim_basic_16x16.gif') right center no-repeat; }
+</style>
+<script type="text/javascript">
+function formSubmit(location)
+{
+    console.log(location);
+    document.getElementById('lo.location1').value = location
+    document.getElementById('lo.location2').value = location
+    //document.getElementById('num2ret').value = 1
+    //document.getElementById('actionbutton').value = "Next"
+    document.forms['sysinv'].submit();
+}
+</script>
+</head>
+<body>
+<form id="sysinv" enctype="multipart/form-data" method="post">
+<table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tbody><tr><td width="3%">&nbsp;</td><td align="center">''' + divsize + '''
+    <table width="100%">
+    <tbody>
+      <tr>
+	<td style="width: 400px; color: #000000; font-size: 32px; font-weight: bold;">''' + apptitle + '''</td>
+        <td><span style="color:''' + serverlabelcolor + ''';">''' + serverlabel + '''</td>
+	<th style="text-align:right;"><img height="60px" src="''' + logo + '''"></th>
+      </tr>
+      <tr><td colspan="3"></td></tr>
+      <tr>
+	<td colspan="3">
+	<table>
+	  <tr><td><table>
+	</table>
+        </td><td style="width:3%"/>
+	<td style="width:120px;text-align:center;"></td>
+      </tr>
+      </table></td></tr>
+      <tr><td colspan="3"><div id="status"><hr/></div></td></tr>
+    </tbody>
+    </table>'''
+
+    dbsource = 'pahma.cspace.berkeley.edu'
+
+    print '''<div>
+    <span style="font-size:20px;"><b>%s</b> Total Museum Numbers &bull; <b>%s</b> Total Objects &bull; <b>%s</b> Total Pieces</span><br>
+    <span style="font-size:16px; font-style:italic">All counts accurate as of %s</span><br></div>
+''' % (cswaCollectionUtils.getTopStats(dbsource, config))
+
+    print '''<div id='overlay'></div>
+<div style="text-align:center;">'''
+
+    statcodes = ['total', 'cont', 'obj', 'cat', 'acc', 'efc', 'coll', 'iot']
+    longform = {'total': 'Total Counts', 'cont': 'Continent', 'obj': 'Object Type', 'cult': 'Culture', 'cat': 'Catalog',
+                'don': 'Donor','acc': 'Accession Status', 'efc': 'Ethnographic Use Code', 'coll': 'Collection Manager', 'iot': 'Objects Photographed'}
+
+    for code in statcodes:
+        if code == 'total':
+            print '''
+    <div class="dashboardcell" id="%s">
+        <img src="../images/%s.png" alt="%s" id="%simg">
+    </div>''' % (code, code, longform[code], code)
+        else:
+            print '''
+    <div class="dashboardcell" id="%s">
+        <img src="../images/%s.png" alt="By %s" id="%simg">
+    </div>''' % (code, code, longform[code], code)
+    print '</div>'
+
+    imgsrc = "../images/x.png"
+    for code in statcodes:
+        print '''<div class="dashboardpane" id="%spane">
+    <div class="close" id="%sclose">
+        <img src="%s" alt="close">
+    </div>
+    <div class="content">''' % (code, code, imgsrc)
+        cswaCollectionUtils.makeSelection(code)
+        cswaCollectionUtils.makeChart(code, longform[code], dbsource, config)
+        cswaCollectionUtils.makeTable(code, longform[code], dbsource, config)
+        cswaCollectionUtils.makeTime(code, dbsource, config)
+        print '''
+    </div>
+</div>'''
+    print "</div>"
+
+    def endhtml(form, config, elapsedtime):
+    writeInfo2log('end', form, config, elapsedtime)
+    #user = form.get('user')
+    count = form.get('count')
+    connect_string = config.get('connect', 'connect_string')
+    focusSnippet = ""
+    addenda = '''
+
+d = document.getElementById("appstatus");
+d.innerHTML = '&nbsp;';
+
+});'''
+    # for object details, clear out the input field on focus, for everything else, just focus
+    if config.get('info', 'updatetype') == 'objdetails':
+        focusSnippet = '''$('input:text:first').focus().val("");'''
+    else:
+        focusSnippet = '''$('input:text:first').focus();'''
+    if config.get('info', 'updatetype') == 'collectionstats':
+        addenda = '''$(".dashboardcell").click(function() {
+		var paneid = $(this).attr('id') + 'pane';
+		$('#' + paneid).show();
+		$('#overlay').show();
+	});
+	$(".close").click(function() {
+		var closeid = $(this).attr('id').replace("close","pane");
+		$('#' + closeid).hide();
+		$('#overlay').hide();
+	});
+	$(".selimg").click(function() {
+		var showid = $(this).attr('id').replace("sel","");
+		if(showid.indexOf("close") != -1) {
+                    var closeid = showid.replace("close","pane");
+                    $('#' + closeid).hide();
+                    $('#overlay').hide();
+		} else if(showid.indexOf("chart") != -1) {
+			$('#' + showid.replace("chart", "table")).hide();
+			$('#' + showid.replace("chart", "time")).hide();
+			if (document.getElementById(showid).style.display == 'none'){
+				$('#' + showid).show(0)
+			} //else {
+				//$('#' + showid).hide();
+			//}
+		} else if(showid.indexOf("table") != -1) {
+			$('#' + showid.replace("table", "chart")).hide();
+			$('#' + showid.replace("table", "time")).hide();
+			$('#' + showid).show(0)
+		} else if(showid.indexOf("time") != -1) {
+			$('#' + showid.replace("time", "chart")).hide();
+			$('#' + showid.replace("time", "table")).hide();
+			$('#' + showid).show(0)
+		}
+	});
+});'''
+    return '''
+  <table width="100%">
+    <tbody>
+    <tr>
+      <td width="80px"><input id="checkbutton" class="cell" type="submit" value="check server" name="check"></td>
+      <td width="180px" class="xspan">''' + time.strftime("%b %d %Y %H:%M:%S", time.localtime()) + '''</td>
+      <td width="120px" class="cell">elapsed time: </td>
+      <td class="xspan">''' + ('%8.2f' % elapsedtime) + ''' seconds</td>
+      <td style="text-align: right;" class="cell">powered by </td>
+      <td style="text-align: right;width: 170;" class="cell"><img src="http://www.collectionspace.org/sites/all/themes/CStheme/images/CSpaceLogo.png" height="30px"></td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+</td><td width="2%">&nbsp;</td></tr>
+</tbody></table>
+</form>
+<script>
+$(function () {
+       $("[name^=select-]").click(function (event) {
+           var selected = this.checked;
+           var mySet    = $(this).attr("name");
+           mySet = mySet.replace('select-','');
+           // console.log(mySet);
+           // Iterate each checkbox
+           $("[name^=" + mySet + "]").each(function () { this.checked = selected; });
+       });
+    });
+
+$(document).ready(function () {
+
+''' + focusSnippet + '''
+
+$(function() {
+  $('[id^="sortTable"]').map(function() {
+        // console.log(this);
+        $(this).tablesorter({debug: true})
+     });
+  });
+
+$('[name]').map(function() {
+    var elementID = $(this).attr('name');
+    if (elementID.indexOf('.') == 2) {
+        // console.log(elementID);
+        $(this).autocomplete({
+            source: function(request, response) {
+                $.ajax({
+                    url: "../cgi-bin/autosuggest.py?connect_string=''' + connect_string + '''",
+                    dataType: "json",
+                    data: {
+                        q : request.term,
+                        elementID : elementID
+                    },
+                    success: function(data) {
+                        response(data);
+                    }
+                });
+            },
+            minLength: 2,
+        });
+    }
+});
+
+''' + addenda + '''
+</script>
+</body></html>
+'''

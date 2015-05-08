@@ -1,0 +1,61 @@
+{% extends "cspace_django_site/base_site.html" %}
+{% load i18n admin_static %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" type="text/css" href="{% static "cspace_django_site/css/smoothness/jquery-ui-1.10.3.custom.min.css" %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static "move/css/move.css" %}"/>
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript" src="{% static "cspace_django_site/js/jquery-1.10.0.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "cspace_django_site/js/jquery-ui-1.10.3.custom.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "move/js/move.js" %}"></script>
+{% endblock %}
+
+{% block loginBtn %}
+<div id="user-tools">
+    <a href="{% url 'login' %}?next=/pahma_project/move/" id="login" class="prettyBtn">{% trans 'Sign in' %}</a>
+</div>
+{% endblock %}
+
+{% block branding %}
+    <h4 class="bannerLeft"></h4>
+    <h4 class="bannerRight"><span style="color: {% if server == 'Prod' %}red{% else %}green{% endif %}">{{ server }}</span></h4>
+    <h1 class="bannerTitle" id="site-name">{{ title }}</h1>
+{% endblock %}
+
+{% block content %}
+  <div>
+    <form method="post" action="/pahma_project/move/sys_inv">
+      {% csrf_token %}
+      <input type="hidden" name="reason" value="{{ reason }}">
+      <input type="hidden" name="handler" value="{{ handler }}">
+      <input type="hidden" name="lo.location1" value="{{ start }}">
+      <input type="hidden" name="lo.location2" value="{{ end }}">
+      <input type="hidden" name="searched" value="False">
+      <table>
+          {% if error %}
+              <tr><td colspan="4"><span style="color: red">{{ error }} Not updated!</span></td></tr>
+          {% else %}
+              {% for key, obj in res.items %}
+                  <tr><td>{{ obj.0 }}</td><td>{{ obj.1 }}</td><td>{{ obj.3|safe }}</td><td>{% if obj.2%}Note: {{ obj.2 }}{% endif %}</td></tr>
+              {% endfor %}
+              <tr>{{ res.numUpdated }} objects updated out of {{ res.total }}.</tr>
+          {% endif %}
+          <tr><td style="text-align:center" colspan="4"><input name="return" type="submit" value="Return"></td></tr>
+    </table>
+    </form>
+  </div>
+{% endblock %}
+
+{% block footer %}
+  <table width="100%">
+    <tbody>
+    <tr>
+      <td style="vertical-align: middle">Current time: {{ timestamp }}. This is version {{ version }}</td>
+      <td style="vertical-align: middle;width: 70px;">powered by </td>
+      <td style="text-align: right; width: 160px;"><img src="{% static "cspace_django_site/images/header-logo-cspace.png" %}" height="30px"></td>
+    </tr>
+    </tbody>
+  </table>
+{% endblock %}

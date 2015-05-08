@@ -3,23 +3,24 @@
 
 {% block extrastyle %}
     <link rel="stylesheet" type="text/css" href="{% static "cspace_django_site/css/smoothness/jquery-ui-1.10.3.custom.min.css" %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static "info_review/css/info_review.css" %}"/>
 {% endblock %}
 
 {% block scripts %}
     <script type="text/javascript" src="{% static "cspace_django_site/js/jquery-1.10.0.min.js" %}"></script>
     <script type="text/javascript" src="{% static "cspace_django_site/js/jquery-ui-1.10.3.custom.min.js" %}"></script>
-    <script type="text/javascript" src="{% static "inventory/js/Inventory.js" %}"></script>
+    <script type="text/javascript" src="{% static "info_review/js/Info_review.js" %}"></script>
 {% endblock %}
 
 {% block loginBtn %}
 <div id="user-tools">
-    <a href="{% url 'login' %}?next=/pahma_project/inventory/" id="login" class="prettyBtn">{% trans 'Sign in' %}</a>
+    <a href="{% url 'login' %}?next=/pahma_project/info_review/" id="login" class="prettyBtn">{% trans 'Sign in' %}</a>
 </div>
 {% endblock %}
 
 {% block branding %}
     <h4 class="bannerLeft"></h4>
-    <h4 class="bannerRight"></h4>
+    <h4 class="bannerRight"><span style="color: {% if server == 'Prod' %}red{% else %}green{% endif %}">{{ server }}</span></h4>
     <h1 class="bannerTitle" id="site-name">{{ title }}</h1>
 {% endblock %}
 
@@ -29,7 +30,7 @@
     {% for csid, message in messages.items %}
         <tr><td>{{ csid }}</td><td>{{ message }}</td></tr>
     {% endfor %}
-    <tr><td style="text-align:center" colspan="2"><a href="../inventory"><button>Return</button></a></td></tr>
+    <tr><td style="text-align:center" colspan="2"><a href="../info_review"><button>Return</button></a></td></tr>
     </table>
   </div>
 {% endblock %}

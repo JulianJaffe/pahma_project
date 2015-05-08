@@ -211,8 +211,78 @@ def getxml(uri, realm, hostname, username, password, getItems):
         raise
     except urllib2.URLError, e:
         sys.stderr.write('We failed to reach a server.')
-        sys.stderr.write( 'Reason: %s' % e.reason)
+        sys.stderr.write('Reason: %s' % e.reason)
         raise
     else:
         return (url, data, elapsedtime)
 
+
+def updateLocations(updateItems, config, realm, hostname, user):
+    username, password = user.get_username, user.cspace_password
+
+    uri = 'movements'
+
+    payload = lmiPayload(updateItems)
+    (url, data, csid, elapsedtime) = cspace.postxml(realm, uri, hostname, 'https', '', username, password, payload,
+                                                    'POST')
+
+    uri = 'relations'
+
+    updateItems['subjectDocumentType'] = 'Movement'
+    updateItems['objectDocumentType'] = 'CollectionObject'
+    payload = relationsPayload(updateItems)
+    (url, data, csid, elapsedtime) = cspace.postxml(realm, uri, hostname, 'https', '', username, password, payload,
+                                                    'POST')
+
+    temp = updateItems['objectCsid']
+    updateItems['objectCsid'] = updateItems['subjectCsid']
+    updateItems['subjectCsid'] = temp
+    updateItems['subjectDocumentType'] = 'CollectionObject'
+    updateItems['objectDocumentType'] = 'Movement'
+    payload = relationsPayload(updateItems)
+    (url, data, csid, elapsedtime) = cspace.postxml(realm, uri, hostname, 'https', '', username, password, payload,
+                                                    'POST')
+
+    cspace_logging.logging.writeLog(updateItems, uri, 'POST', username, config)
+
+
+def lmiPayload(f):
+    payload = """<?xml version="1.0" encoding="UTF-8"?>
+<document name="movements">
+<ns2:movements_common xmlns:ns2="http://collectionspace.org/services/movement" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<reasonForMove>%s</reasonForMove>
+<currentLocation>%s</currentLocation>
+<currentLocationFitness>suitable</currentLocationFitness>
+<locationDate>%s</locationDate>
+<movementNote>%s</movementNote>
+</ns2:movements_common>
+<ns2:movements_anthropology xmlns:ns2="http://collectionspace.org/services/movement/domain/anthropology" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<computedSummary>%s</computedSummary>
+<crate>%s</crate>
+<locationHandlers>
+<locationHandler>%s</locationHandler>
+</locationHandlers>
+</ns2:movements_anthropology>
+</document>
+"""
+    payload = payload % (
+        f['reason'], f['locationRefname'], f['locationDate'], f['inventoryNote'], f['computedSummary'], f['crate'],
+        f['handlerRefName'])
+
+    return payload
+
+
+def relationsPayload(f):
+    payload = """<?xml version="1.0" encoding="UTF-8"?>
+<document name="relations">
+  <ns2:relations_common xmlns:ns2="http://collectionspace.org/services/relation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <relationshipType>affects</relationshipType>
+    <objectCsid>%s</objectCsid>
+    <objectDocumentType>%s</objectDocumentType>
+    <subjectCsid>%s</subjectCsid>
+    <subjectDocumentType>%s</subjectDocumentType>
+  </ns2:relations_common>
+</document>
+"""
+    payload = payload % (f['objectCsid'], f['objectDocumentType'], f['subjectCsid'], f['subjectDocumentType'])
+    return payload

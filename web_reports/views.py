@@ -20,6 +20,7 @@ def list_apps(request):
                                                    ['Hierarchy Viewer', 'hierarchy_viewer'],
                                                    ['Packing List', 'packing_list']]}
     context['timestamp'] = time.strftime("%b %d %Y %H:%M:%S", time.localtime())
+    context['server'] = 'Dev'
     return render(request, 'list.html', context)
 
 
@@ -29,13 +30,15 @@ def hierarchy_viewer(request):
     context['timestamp'] = time.strftime("%b %d %Y %H:%M:%S", time.localtime())
     hierarchies = getHierarchies()
     context['hierarchies'] = hierarchies
+    server = 'Prod'
+    context['server'] = server
     if "hierarchy" in request.GET:
         hierarchy = request.GET["hierarchy"]
         if hierarchy not in [h[1] for h in hierarchies]:
             return render(request, 'hierarchy_viewer.html', context)
         context['selected_hierarchy'] = hierarchy
-        config_file_name = 'HierarchyViewerProd' # Currently hard-coded Dev
-        config = cspace.getConfig(path.dirname(path.abspath(__file__)), config_file_name)
+        config_file_name = 'HierarchyViewer'
+        config = cspace.getConfig(path.dirname(path.abspath(__file__)), config_file_name + server)
         version = config.get('info', 'version')
         context['version'] = version
         res = db.gethierarchy(hierarchy, config)
@@ -71,12 +74,14 @@ def government_holdings(request):
     short_agencies = [agency[0] for agency in agencies]
     opt_agencies = [ag.replace(" ", "") for ag in short_agencies]
     context['agencies'] = zip(short_agencies, opt_agencies)
+    server = 'Dev'  # Currently hard-coded
+    context['server'] = server
     if "agency" in request.GET:
         agency = request.GET["agency"]
         if agency not in opt_agencies:
             return render(request, 'government_holdings.html', context)
-        config_file_name = 'GovernmentHoldingsDev' # Currently hard-coded Dev
-        config = cspace.getConfig(path.dirname(path.abspath(__file__)), config_file_name)
+        config_file_name = 'GovernmentHoldings'
+        config = cspace.getConfig(path.dirname(path.abspath(__file__)), config_file_name + server)
         version = config.get('info', 'version')
         context['version'] = version
         context['selected_agency'] = agency

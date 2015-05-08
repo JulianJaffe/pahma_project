@@ -5,6 +5,7 @@
 {% block extrastyle %}
     <link rel="stylesheet" type="text/css" href="{% static "cspace_django_site/css/smoothness/jquery-ui-1.10.3.custom.min.css" %}"/>
     <link rel="stylesheet" type="text/css" href="{% static "web_reports/css/jqtree.css" %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static "web_reports/css/web_reports.css" %}"
 {% endblock %}
 
 {% block scripts %}
@@ -21,7 +22,7 @@
 
 {% block branding %}
     <h4 class="bannerLeft"></h4>
-    <h4 class="bannerRight"></h4>
+    <h4 class="bannerRight"><span style="color: {% if server == 'Prod' %}red{% else %}green{% endif %}">{{ server }}</span></h4>
     <h1 class="bannerTitle" id="site-name">{{ title }}</h1>
 {% endblock %}
 

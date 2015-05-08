@@ -22,7 +22,7 @@ urlpatterns = patterns('',
                        #  url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
                        # this is a test webapp. you may remove it if you like.
-                       url(r'^$', 'hello.views.home', name='home'),
+                       url(r'^$', include('landing.urls', namespace='landing')),
                        # these are django builtin webapps
                        url(r'^admin/', include(admin.site.urls)),
                        url(r'^accounts/login/$', views.login, name='login'),
@@ -42,6 +42,7 @@ urlpatterns = patterns('',
                        url(r'^uploadmedia/', include('uploadmedia.urls', namespace='uploadmedia')),
                        url(r'^locviewer/', include('locviewer.urls', namespace='locviewer')),
                        url(r'^web_reports/?', include('web_reports.urls', namespace='web_reports')),
-                       url(r'^inventory/?', include('inventory.urls', namespace='inventory')),
+                       url(r'^info_review/?', include('info_review.urls', namespace='info_review')),
+                       url(r'^move/?', include('move.urls', namespace='move')),
 
 )
